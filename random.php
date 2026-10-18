@@ -15,7 +15,8 @@
 
    Back of the shirt:
      backside=true            high crew collar, no maker logo or stars; the number goes big in the middle
-     text=SILVA               up to 12 characters across the top, between the sleeves (back only)
+     text=SILVA               up to 16 characters across the top, between the sleeves (back only);
+                              short names come out a little bigger and wider spaced, long ones shrink to fit
      e.g. random.php?backside=true&number=10&text=SILVA
 
    The shirt shape is always Kit Room's default (100%) unless you set it, in percent of the default:
@@ -380,12 +381,19 @@ final class KitRoom {
     $number = trim((string)(isset($s['number']) ? $s['number'] : ''));
     if ($number !== '') { list($cx, $cy) = $G['spot'](in_array($s['numPos'], $SPOT_IDS, true) ? $s['numPos'] : 'L');
       $o .= "<text x=\"{$j($cx)}\" y=\"{$j($cy)}\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"'Barlow Condensed','Arial Narrow',Arial,sans-serif\" font-weight=\"700\" font-size=\"{$j($numSize)}\" fill=\"$numColor\"" . (!empty($s['numEdge']) ? " stroke=\"$numStroke\" stroke-width=\"{$j($numSize/18)}\" paint-order=\"stroke\"" : '') . '>' . self::esc(self::sub($number, 0, 8)) . '</text>'; }
-    $text = self::sub(trim((string)(isset($s['text']) ? $s['text'] : '')), 0, 12);
-    if ($text !== '') { list($tx, $ty) = $G['spot']('T'); $tSize = self::clamp(self::num(isset($s['textSize']) ? $s['textSize'] : null, 7), 3, 14);
-      $maxW = $G['hw'] * 2 * 0.78; $est = self::len($text) * $tSize * 0.55;
-      $o .= "<text x=\"{$j($tx)}\" y=\"{$j($ty+self::num(isset($s['textDy']) ? $s['textDy'] : 0, 0))}\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"'Barlow Condensed','Arial Narrow',Arial,sans-serif\" font-weight=\"700\" font-size=\"{$j($tSize)}\" fill=\"" . self::safeColor(isset($s['textColor']) ? $s['textColor'] : null, $D['textColor']) . '"'
-        . (!empty($s['numEdge']) ? " stroke=\"$numStroke\" stroke-width=\"{$j($tSize/18)}\" paint-order=\"stroke\"" : '')
-        . ($est > $maxW ? " textLength=\"{$j($maxW)}\" lengthAdjust=\"spacingAndGlyphs\"" : '') . '>' . self::esc($text) . '</text>'; }
+    $text = self::sub(trim((string)(isset($s['text']) ? $s['text'] : '')), 0, 16);
+    if ($text !== '') { list($tx, $ty) = $G['spot']('T'); $base = self::clamp(self::num(isset($s['textSize']) ? $s['textSize'] : null, 7), 3, 14);
+      $n = self::len($text); $maxW = $G['hw'] * 2 * 0.84;
+      // short text: up to 20% bigger with wider letter spacing, easing back by 10 characters; longer text keeps 0.1em spacing
+      $f = self::clamp((10 - $n) / 6, 0, 1);
+      $size = $base * (1 + 0.2 * $f); $ls = $size * (0.1 + 0.06 * $f); $est = $n * $size * 0.55 + ($n - 1) * $ls;
+      // too wide for the space between the sleeves: first close the spacing a little (never below 0.07em),
+      // then shrink letters and spacing together (to 60% of the set size at most), and only then squeeze
+      if ($est > $maxW && $n > 1) { $ls = max($size * 0.07, ($maxW - $n * $size * 0.55) / ($n - 1)); $est = $n * $size * 0.55 + ($n - 1) * $ls; }
+      if ($est > $maxW) { $k = max($maxW / $est, $base * 0.6 / $size); $size *= $k; $ls *= $k; $est *= $k; }
+      $o .= "<text x=\"{$j($tx+$ls/2)}\" y=\"{$j($ty+self::num(isset($s['textDy']) ? $s['textDy'] : 0, 0))}\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"'Barlow Condensed','Arial Narrow',Arial,sans-serif\" font-weight=\"700\" font-size=\"{$j($size)}\" letter-spacing=\"{$j($ls)}\" fill=\"" . self::safeColor(isset($s['textColor']) ? $s['textColor'] : null, $D['textColor']) . '"'
+        . (!empty($s['numEdge']) ? " stroke=\"$numStroke\" stroke-width=\"{$j($size/18)}\" paint-order=\"stroke\"" : '')
+        . ($est > $maxW + 0.01 ? " textLength=\"{$j($maxW)}\" lengthAdjust=\"spacingAndGlyphs\"" : '') . '>' . self::esc($text) . '</text>'; }
     return $o . '</svg>';
   }
 
@@ -429,7 +437,7 @@ final class KitRoom {
     $out['starLayout'] = $in('starLayout', ['row', 'stack', 'arc']);
     $out['numPos'] = $in('numPos', ['L', 'C', 'R', 'M', 'B']);
     $out['number'] = self::sub((string)(array_key_exists('number', $raw) && $raw['number'] !== null ? $raw['number'] : $d['number']), 0, 8);
-    $out['text'] = self::sub((string)(array_key_exists('text', $raw) && $raw['text'] !== null ? $raw['text'] : $d['text']), 0, 12);
+    $out['text'] = self::sub((string)(array_key_exists('text', $raw) && $raw['text'] !== null ? $raw['text'] : $d['text']), 0, 16);
     $out['textSize'] = self::clamp($g('textSize'), 3, 14);
     $out['textDy'] = self::clamp($g('textDy'), -10, 30);
     $logos = isset($raw['logos']) && is_array($raw['logos']) ? $raw['logos'] : [];
@@ -488,7 +496,7 @@ final class KitRoom {
 
   /* ---------- request options: maker logo, number, stars, shape ---------- */
   // $o: ['maker' => false|true|'adidas'..., 'number' => ''|'54'|'random', 'stars' => 0..10|'random', 'shape' => [key => percent],
-  //      'back' => bool, 'text' => string up to 12 characters (back only)].
+  //      'back' => bool, 'text' => string up to 16 characters (back only)].
   // Any extra random draws come after randomKit, so options never change the rest of the shirt for a given seed.
   const SHAPE_KEYS = ['shirtLen' => [75, 130], 'shirtWid' => [75, 130], 'sleeveLen' => [50, 140], 'sleeveWid' => [55, 130], 'cuffWid' => [50, 150]];
   static function applyOptions($k, $r, $o) {
@@ -502,6 +510,7 @@ final class KitRoom {
     else $k['number'] = $o['number'];
     if ($o['stars'] === 'random') { if (!$k['stars']) $k['stars'] = 1 + (int)floor($r() * 5); }
     else $k['stars'] = (int)$o['stars'];
+    $k['makerSize'] = self::round($k['makerSize'] * 11) / 10;   // maker logos 10% bigger than randomKit draws them (7.7-11)
     if (empty($o['back'])) {                        // front: the number sits where the club badge would, stars above it
       $k['numPos'] = 'R';
       if ($k['numSize'] > 15) $k['numSize'] = 14;
@@ -548,7 +557,7 @@ if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
     if (isset($_GET[$key]) && is_numeric($_GET[$key])) $shape[$key] = round((float)$_GET[$key], 1);
   $back = in_array($arg('backside'), ['1', 'true', 'yes', 'on', ''], true);
   $text = isset($_GET['text']) && is_string($_GET['text']) ? preg_replace('/[\x00-\x1F\x7F]+/u', '', trim($_GET['text'])) : '';
-  $text = $back && $text !== null ? KitRoom::sub(trim($text), 0, 12) : '';
+  $text = $back && $text !== null ? KitRoom::sub(trim($text), 0, 16) : '';
   $kit = KitRoom::applyOptions(KitRoom::randomKit($rand), $rand, ['maker' => $maker, 'number' => $number, 'stars' => $stars, 'shape' => $shape, 'back' => $back, 'text' => $text]);
   $svg = KitRoom::toFile($kit, $size, !(isset($_GET['embed']) && $_GET['embed'] === '0'));
   header('Content-Type: image/svg+xml; charset=utf-8');

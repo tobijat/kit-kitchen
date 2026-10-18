@@ -511,9 +511,16 @@ function render(s, size){
   if(String(s.number??"").trim()){const [cx,cy]=G.spot(SPOT_IDS.has(s.numPos)?s.numPos:"L");
     o+=`<text x="${r2(cx)}" y="${r2(cy)}" text-anchor="middle" dominant-baseline="central" font-family="'Barlow Condensed','Arial Narrow',Arial,sans-serif" font-weight="700" font-size="${r2(numSize)}" fill="${numColor}"${s.numEdge?` stroke="${numStroke}" stroke-width="${r2(numSize/18)}" paint-order="stroke"`:""}>${esc(String(s.number).trim().slice(0,8))}</text>`;}
   // text across the top of the shirt (a name on the back); the number's edge setting applies to it too
-  const text=String(s.text??"").trim().slice(0,12);
-  if(text){const [tx,ty]=G.spot("T"), tSize=clamp(num(s.textSize,7),3,14), maxW=G.hw*2*0.78, est=text.length*tSize*0.55;
-    o+=`<text x="${r2(tx)}" y="${r2(ty+num(s.textDy,0))}" text-anchor="middle" dominant-baseline="central" font-family="'Barlow Condensed','Arial Narrow',Arial,sans-serif" font-weight="700" font-size="${r2(tSize)}" fill="${safeColor(s.textColor,DEFAULT.textColor)}"${s.numEdge?` stroke="${numStroke}" stroke-width="${r2(tSize/18)}" paint-order="stroke"`:""}${est>maxW?` textLength="${r2(maxW)}" lengthAdjust="spacingAndGlyphs"`:""}>${esc(text)}</text>`;}
+  const text=String(s.text??"").trim().slice(0,16);
+  if(text){const [tx,ty]=G.spot("T"), base=clamp(num(s.textSize,7),3,14), n=text.length, maxW=G.hw*2*0.84;
+    // short text: up to 20% bigger with wider letter spacing, easing back by 10 characters; longer text keeps 0.1em spacing
+    const f=clamp((10-n)/6,0,1);
+    let size=base*(1+0.2*f), ls=size*(0.1+0.06*f), est=n*size*0.55+(n-1)*ls;
+    // too wide for the space between the sleeves: first close the spacing a little (never below 0.07em),
+    // then shrink letters and spacing together (to 60% of the set size at most), and only then squeeze
+    if(est>maxW&&n>1){ls=Math.max(size*0.07,(maxW-n*size*0.55)/(n-1));est=n*size*0.55+(n-1)*ls;}
+    if(est>maxW){const k=Math.max(maxW/est,base*0.6/size);size*=k;ls*=k;est*=k;}
+    o+=`<text x="${r2(tx+ls/2)}" y="${r2(ty+num(s.textDy,0))}" text-anchor="middle" dominant-baseline="central" font-family="'Barlow Condensed','Arial Narrow',Arial,sans-serif" font-weight="700" font-size="${r2(size)}" letter-spacing="${r2(ls)}" fill="${safeColor(s.textColor,DEFAULT.textColor)}"${s.numEdge?` stroke="${numStroke}" stroke-width="${r2(size/18)}" paint-order="stroke"`:""}${est>maxW+0.01?` textLength="${r2(maxW)}" lengthAdjust="spacingAndGlyphs"`:""}>${esc(text)}</text>`;}
   return o+"</svg>";
 }
 
@@ -557,7 +564,7 @@ function sanitizeKit(raw){
   out.starLayout=STAR_LAYOUT.has(raw.starLayout)?raw.starLayout:d.starLayout;
   out.numPos=SPOT_IDS.has(raw.numPos)?raw.numPos:d.numPos;
   out.number=String(raw.number??d.number).slice(0,8);
-  out.text=String(raw.text??d.text).slice(0,12);
+  out.text=String(raw.text??d.text).slice(0,16);
   out.textSize=clamp(num(raw.textSize,d.textSize),3,14);
   out.textDy=clamp(num(raw.textDy,d.textDy),-10,30);
   const logos=Array.isArray(raw.logos)?raw.logos:[];
