@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kit Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="kit-room.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Kit <span>Room</span></h1>
+    <p class="tag">Design a shirt, drop in your club crest, copy the SVG straight into your game.</p>
+  </header>
+
+  <div class="grid">
+    <div class="stage-col">
+      <div class="stage">
+        <div class="stage-tools">
+          <label class="btn small onturf file" title="Open a shirt SVG made in Kit Room">Open SVG<input type="file" accept=".svg,image/svg+xml" id="openSvg"></label><button class="btn small onturf" id="randomize" type="button">Random kit</button>
+        </div>
+        <div class="shirt" id="preview"></div>
+      </div>
+
+      <div class="card">
+        <h2>Icon <small>64px on white</small></h2>
+        <div class="sizes" id="sizes"></div>
+      </div>
+
+      <div class="card">
+        <h2>Starter kits <small>click to load</small></h2>
+        <div class="strip" id="presets"></div>
+      </div>
+
+      <div class="card">
+        <h2>Your kits <button class="btn small primary" id="saveKit" type="button">Save kit</button></h2>
+        <div class="strip" id="saved"></div>
+        <p class="empty" id="savedEmpty">Saved kits stay in this browser. Use Copy config below to keep one for good.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <section class="card" id="importCard">
+        <h2>Start from an image <small>PNG, JPG or WebP</small></h2>
+        <div class="import">
+          <div class="import-drop" id="importDrop">
+            <img id="importImg" alt="Uploaded jersey" hidden>
+            <span id="importHint">Drop a jersey icon here</span>
+          </div>
+          <div class="import-body">
+            <p class="note" style="margin:0" id="importText">Kit Room reads the colours, pattern, sleeves, cuffs and collar from the picture. Crests and numbers stay as you set them.</p>
+            <div class="swatches" id="importSwatches"></div>
+            <div class="btns"><label class="btn small primary file">Upload image<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" id="importFile"></label><button class="btn small" type="button" id="importUndo" hidden>Undo</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Shirt</h2>
+        <div class="row"><label for="c-base">Ground</label><div class="color"><input type="color" id="c-base" data-k="base"><input type="text" class="hex" id="h-base" data-hex="base" aria-label="Ground hex"></div></div>
+        <div class="row"><label for="c-outline">Outline</label><div class="color"><input type="color" id="c-outline" data-k="outline"><input type="text" class="hex" id="h-outline" data-hex="outline" aria-label="Outline hex"></div></div>
+        <div class="row"><label for="r-outlineW">Outline width</label><div class="range"><input type="range" id="r-outlineW" min="0" max="3" step="0.1" data-k="outlineW"><output></output></div></div>
+        <div class="row"><label for="r-shading">Shading</label><div class="range"><input type="range" id="r-shading" min="0" max="100" step="1" data-k="shading"><output></output></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Shape <button class="btn small" id="resetShape" type="button">Reset shape</button></h2>
+        <div class="row"><label for="r-shirtLen">Shirt length</label><div class="range"><input type="range" id="r-shirtLen" min="75" max="130" step="1" data-k="shirtLen" data-unit="%"><output></output></div></div>
+        <div class="row"><label for="r-shirtWid">Shirt width</label><div class="range"><input type="range" id="r-shirtWid" min="75" max="130" step="1" data-k="shirtWid" data-unit="%"><output></output></div></div>
+        <div class="row"><label for="r-sleeveLen">Sleeve length</label><div class="range"><input type="range" id="r-sleeveLen" min="40" max="160" step="1" data-k="sleeveLen" data-unit="%"><output></output></div></div>
+        <div class="row"><label for="r-sleeveWid">Sleeve width</label><div class="range"><input type="range" id="r-sleeveWid" min="55" max="130" step="1" data-k="sleeveWid" data-unit="%"><output></output></div></div>
+        <div class="row" id="cuffWidRow"><label for="r-cuffWid">Cuff width</label><div class="range"><input type="range" id="r-cuffWid" min="30" max="250" step="5" data-k="cuffWid" data-unit="%"><output></output></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Pattern</h2>
+        <div class="patterns" id="patterns" role="group" aria-label="Pattern"></div>
+        <div class="row" data-show="color1"><label for="c-p1">Pattern colour</label><div class="color"><input type="color" id="c-p1" data-k="p1"><input type="text" class="hex" id="h-p1" data-hex="p1" aria-label="Pattern hex"></div></div>
+        <div class="row" data-show="twoTone"><span class="lbl">Second colour</span><label class="check"><input type="checkbox" id="k-twoTone" data-k="twoTone"> <span id="twoToneLabel">Alternate with a second colour</span></label></div>
+        <div class="row" data-show="color2"><label for="c-p2">Colour 2</label><div class="color"><input type="color" id="c-p2" data-k="p2"><input type="text" class="hex" id="h-p2" data-hex="p2" aria-label="Second colour hex"></div></div>
+        <div class="row" data-show="color3"><label for="c-p3">Colour 3</label><div class="color"><input type="color" id="c-p3" data-k="p3"><input type="text" class="hex" id="h-p3" data-hex="p3" aria-label="Third colour hex"></div></div>
+        <div class="row" data-show="count"><label for="r-count">Count</label><div class="range"><input type="range" id="r-count" min="1" max="12" step="1" data-k="count"><output></output></div></div>
+        <div class="row" data-show="width"><label for="r-width">Thickness</label><div class="range"><input type="range" id="r-width" min="5" max="90" step="1" data-k="width"><output></output></div></div>
+        <div class="row" data-show="angle"><label for="r-angle">Angle</label><div class="range"><input type="range" id="r-angle" min="-60" max="60" step="1" data-k="angle"><output></output></div></div>
+        <div class="row" data-show="pos"><label for="r-pos">Position</label><div class="range"><input type="range" id="r-pos" min="-24" max="24" step="0.5" data-k="pos"><output></output></div></div>
+        <div class="row" data-show="vpos"><label for="r-vpos">Bar height</label><div class="range"><input type="range" id="r-vpos" min="-18" max="40" step="0.5" data-k="vpos"><output></output></div></div>
+        <div class="row" data-show="gap"><label for="r-gap" id="gapLabel">Centre gap</label><div class="range"><input type="range" id="r-gap" min="0" max="30" step="1" data-k="gap"><output></output></div></div>
+        <div class="row" data-show="jagged"><span class="lbl">Edges</span><label class="check"><input type="checkbox" id="k-jagged" data-k="jagged"> Stepped, jagged edges</label></div>
+        <div class="row" data-show="flip"><span class="lbl">Mirror</span><label class="check"><input type="checkbox" id="k-flip" data-k="flip"> Flip left and right</label></div>
+        <div class="row" data-show="center"><span class="lbl">Alignment</span><label class="check"><input type="checkbox" id="k-center" data-k="center"> Stripe down the middle</label></div>
+      </section>
+
+      <section class="card">
+        <h2>Mottling <small>texture over the shirt</small></h2>
+        <div class="row"><label for="s-mottle">Style</label><select id="s-mottle" data-k="mottle"><option value="off">None</option><option value="speckle">Speckled</option><option value="blotch">Blotchy</option><option value="lattice">Ornament lattice</option><option value="weave">Woven grid</option><option value="zebra">Zebra</option><option value="leaves">Leaf herringbone</option><option value="streaks">Brush streaks</option></select></div>
+        <div class="row" data-mottle><label for="c-mottleColor">Colour</label><div class="color"><input type="color" id="c-mottleColor" data-k="mottleColor"><input type="text" class="hex" id="h-mottleColor" data-hex="mottleColor" aria-label="Mottling hex"></div></div>
+        <div class="row" data-mottle><label for="r-mottleStrength">Strength</label><div class="range"><input type="range" id="r-mottleStrength" min="5" max="100" step="1" data-k="mottleStrength" data-unit="%"><output></output></div></div>
+        <div class="row" data-mottle><label for="r-mottleScale">Scale</label><div class="range"><input type="range" id="r-mottleScale" min="40" max="250" step="5" data-k="mottleScale" data-unit="%"><output></output></div></div>
+        <div class="row" data-mottle><span class="lbl">Sleeves</span><label class="check"><input type="checkbox" id="k-mottleSleeves" data-k="mottleSleeves"> Mottle the sleeves too</label></div>
+        <div class="row" id="mottleSeedRow"><span class="lbl">Variation</span><div class="btns"><button class="btn small" type="button" id="mottleShuffle">Shuffle</button><span class="note" style="margin:0" id="mottleSeedNote"></span></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Sleeves &amp; collar</h2>
+        <div class="row"><span class="lbl">Pattern</span><label class="check"><input type="checkbox" id="k-patternSleeves" data-k="patternSleeves"> Run pattern onto sleeves</label></div>
+        <div class="row" id="sleeveRow"><label for="c-sleeve">Sleeves</label><div class="color"><input type="color" id="c-sleeve" data-k="sleeve"><input type="text" class="hex" id="h-sleeve" data-hex="sleeve" aria-label="Sleeve hex"></div></div>
+        <div class="row"><span class="lbl">Cuffs</span><label class="check"><input type="checkbox" id="k-cuff" data-k="cuff"> Contrast cuffs</label></div>
+        <div class="row" id="cuffStripeRow"><span class="lbl">Cuff stripe</span><div class="color"><label class="check"><input type="checkbox" id="k-cuffStripe" data-k="cuffStripe"> On</label><input type="color" id="c-cuffStripeColor" data-k="cuffStripeColor" aria-label="Cuff stripe colour"><input type="text" class="hex" id="h-cuffStripeColor" data-hex="cuffStripeColor" aria-label="Cuff stripe hex"></div></div>
+        <div class="row" id="cuffRow"><label for="c-cuffColor">Cuff colour</label><div class="color"><input type="color" id="c-cuffColor" data-k="cuffColor"><input type="text" class="hex" id="h-cuffColor" data-hex="cuffColor" aria-label="Cuff hex"></div></div>
+        <div class="row"><span class="lbl">Shoulders</span><label class="check"><input type="checkbox" id="k-shStripes" data-k="shStripes"> Three shoulder stripes</label></div>
+        <div class="row" id="shRow"><label for="c-shColor">Stripe colour</label><div class="color"><input type="color" id="c-shColor" data-k="shColor"><input type="text" class="hex" id="h-shColor" data-hex="shColor" aria-label="Shoulder stripe hex"></div></div>
+        <div class="row"><label for="s-collar">Collar</label><select id="s-collar" data-k="collar"><option value="round">Round neck</option><option value="crew">High crew</option><option value="v">V-neck</option><option value="polo">Polo</option></select></div>
+        <div class="row"><label for="c-collarColor">Collar colour</label><div class="color"><input type="color" id="c-collarColor" data-k="collarColor"><input type="text" class="hex" id="h-collarColor" data-hex="collarColor" aria-label="Collar hex"></div></div>
+        <div class="row"><span class="lbl">Collar stripe</span><div class="color"><label class="check"><input type="checkbox" id="k-collarStripe" data-k="collarStripe"> On</label><input type="color" id="c-collarStripeColor" data-k="collarStripeColor" aria-label="Collar stripe colour"><input type="text" class="hex" id="h-collarStripeColor" data-hex="collarStripeColor" aria-label="Collar stripe hex"></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Badges <small>upload any SVG</small></h2>
+        <div id="slots"></div>
+        <div class="slot">
+          <div class="slot-head"><b>Maker logo</b></div>
+          <div class="row"><label for="s-makerLogo">Logo</label><select id="s-makerLogo" data-k="makerLogo"><option value="none">None</option><option value="adidas">Adidas</option><option value="puma">Puma</option><option value="nike">Nike</option><option value="kelme">Kelme</option><option value="marathon">Marathon</option><option value="umbro">Umbro</option><option value="capelli">Capelli Sport</option><option value="saeta">Saeta</option><option value="kappa">Kappa</option><option value="kappafig">Kappa (figures only)</option><option value="merooj">Merooj</option><option value="reebok">Reebok</option><option value="sudu">Sudu</option><option value="hummel">Hummel</option><option value="jako">Jako</option><option value="legea">Legea</option><option value="castore">Castore</option><option value="joma">Joma</option><option value="macron">Macron</option></select></div>
+          <div class="row" data-maker><label for="c-makerColor">Colour</label><div class="color"><input type="color" id="c-makerColor" data-k="makerColor"><input type="text" class="hex" id="h-makerColor" data-hex="makerColor" aria-label="Maker logo hex"></div></div>
+          <div class="row" data-maker><label for="s-makerPos">Position</label><select id="s-makerPos" data-k="makerPos"><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option><option value="M">Centre front</option></select></div>
+          <div class="row" data-maker><label for="r-makerSize">Size</label><div class="range"><input type="range" id="r-makerSize" min="3" max="30" step="0.5" data-k="makerSize"><output></output></div></div>
+          <div class="row" data-maker><label for="r-makerDx">Nudge across</label><div class="range"><input type="range" id="r-makerDx" min="-12" max="12" step="0.5" data-k="makerDx"><output></output></div></div>
+          <div class="row" data-maker><label for="r-makerDy">Nudge down</label><div class="range"><input type="range" id="r-makerDy" min="-12" max="20" step="0.5" data-k="makerDy"><output></output></div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Stars <small>one per title won</small></h2>
+        <div class="row"><label for="r-stars">Stars</label><div class="range"><input type="range" id="r-stars" min="0" max="10" step="1" data-k="stars"><output></output></div></div>
+        <div class="row" data-star><label for="c-starColor">Colour</label><div class="color"><input type="color" id="c-starColor" data-k="starColor"><input type="text" class="hex" id="h-starColor" data-hex="starColor" aria-label="Star hex"></div></div>
+        <div class="row" data-star><label for="s-starPos">Position</label><select id="s-starPos" data-k="starPos"><option value="crest">Above the crest</option><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option></select></div>
+        <div class="row" data-star><label for="s-starLayout">Layout</label><select id="s-starLayout" data-k="starLayout"><option value="row">Straight row</option><option value="arc">Arc</option><option value="stack">Two rows</option></select></div>
+        <div class="row" data-star><label for="r-starSize">Size</label><div class="range"><input type="range" id="r-starSize" min="1.5" max="9" step="0.25" data-k="starSize"><output></output></div></div>
+        <div class="row" data-star><label for="r-starGap">Spacing</label><div class="range"><input type="range" id="r-starGap" min="0" max="4" step="0.1" data-k="starGap"><output></output></div></div>
+        <div class="row" data-star><label for="r-starDy">Nudge down</label><div class="range"><input type="range" id="r-starDy" min="-10" max="10" step="0.5" data-k="starDy"><output></output></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Number</h2>
+        <div class="row"><label for="t-number">Number</label><input type="text" id="t-number" data-k="number" maxlength="3" placeholder="e.g. 10" style="width:90px"></div>
+        <div class="row"><label for="c-numColor">Colour</label><div class="color"><input type="color" id="c-numColor" data-k="numColor"><input type="text" class="hex" id="h-numColor" data-hex="numColor" aria-label="Number hex"></div></div>
+        <div class="row"><label for="c-numStroke">Edge</label><div class="color"><input type="color" id="c-numStroke" data-k="numStroke"><input type="text" class="hex" id="h-numStroke" data-hex="numStroke" aria-label="Number edge hex"><label class="check"><input type="checkbox" id="k-numEdge" data-k="numEdge"> On</label></div></div>
+        <div class="row"><label for="s-numPos">Position</label><select id="s-numPos" data-k="numPos"><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option><option value="B">Big, centre front</option></select></div>
+        <div class="row"><label for="r-numSize">Size</label><div class="range"><input type="range" id="r-numSize" min="6" max="44" step="1" data-k="numSize"><output></output></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Text <small>across the top, e.g. a name on the back</small></h2>
+        <div class="row"><label for="t-text">Text</label><input type="text" id="t-text" data-k="text" maxlength="12" placeholder="e.g. SILVA" spellcheck="false" style="width:160px"></div>
+        <div class="row"><label for="c-textColor">Colour</label><div class="color"><input type="color" id="c-textColor" data-k="textColor"><input type="text" class="hex" id="h-textColor" data-hex="textColor" aria-label="Text hex"></div></div>
+        <div class="row"><label for="r-textSize">Size</label><div class="range"><input type="range" id="r-textSize" min="3" max="14" step="0.5" data-k="textSize"><output></output></div></div>
+        <div class="row"><label for="r-textDy">Nudge down</label><div class="range"><input type="range" id="r-textDy" min="-10" max="30" step="0.5" data-k="textDy"><output></output></div></div>
+        <p class="note">Uses the number's edge setting. Long text is squeezed to fit between the sleeves.</p>
+      </section>
+
+      <section class="card">
+        <h2>Export</h2>
+        <div class="row"><label for="s-exportSize">Size attribute</label><select id="s-exportSize"><option value="">None (scales to container)</option><option value="32">32 × 32</option><option value="64">64 × 64</option><option value="128" selected>128 × 128</option><option value="256">256 × 256</option></select></div>
+        <div class="row"><span class="lbl">Reopen later</span><label class="check"><input type="checkbox" id="k-embed" checked> Save the settings inside the SVG, so Open SVG can load it again</label></div>
+        <div class="row"><label for="t-fname">File name</label><input type="text" id="t-fname" value="kit-home.svg" spellcheck="false"></div>
+        <div class="btns"><button class="btn primary" id="downloadSvg" type="button">Download SVG</button><button class="btn" id="copySvg" type="button">Copy SVG</button><button class="btn" id="copyCfg" type="button">Copy config</button><span class="note" id="bytes" style="margin:0"></span></div>
+        <textarea id="svgOut" rows="7" readonly aria-label="SVG code" style="margin-top:10px"></textarea>
+        <p class="note">Download the file, or paste the SVG inline in your game. To change a shirt later, use Open SVG above the preview, or drop the file onto the shirt.</p>
+        <details style="margin-top:10px">
+          <summary class="lbl" style="cursor:pointer;font:600 .85rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Load a config</summary>
+          <textarea id="cfgIn" rows="4" placeholder='Paste kit config JSON here' style="margin-top:8px"></textarea>
+          <div class="btns" style="margin-top:8px"><button class="btn" id="loadCfg" type="button">Load config</button></div>
+        </details>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="kit-engine.js"></script>
+<script src="presets.js"></script>
+<script src="kit-room.js"></script>
+</body>
+</html>

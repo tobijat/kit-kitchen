@@ -1,272 +1,6 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style></head><body><title>Kit Room</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
-<style>
-/* Layout: equipment-room workbench — a mown-turf stage holding the shirt on the left, a tidy column of kit controls on the right. */
-:root{
-  --bg:#edf0ee; --panel:#ffffff; --ink:#17201c; --muted:#5b6862; --line:#d5dcd8; --soft:#f4f6f5;
-  --accent:#1f56d0; --accent-ink:#ffffff; --turf1:#2e7a4d; --turf2:#286d44; --chalk:#f3f6f1;
-  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#111614; --panel:#192019; --ink:#e4ebe7; --muted:#93a39b; --line:#2b3732; --soft:#1f2723;
-  --accent:#7ea3ff; --accent-ink:#0d1530; --turf1:#22593a; --turf2:#1e5034; --chalk:#e8eee6; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#111614; --panel:#192019; --ink:#e4ebe7; --muted:#93a39b; --line:#2b3732; --soft:#1f2723;
-  --accent:#7ea3ff; --accent-ink:#0d1530; --turf1:#22593a; --turf2:#1e5034; --chalk:#e8eee6; color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-body)}
-.wrap{max-width:1240px;margin:0 auto;padding:20px 20px 48px}
-header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-h1{font:700 2.1rem/1 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase}
-h1 span{color:var(--accent)}
-.tag{color:var(--muted);margin:0;max-width:52ch}
-.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
-.grid > *{min-width:0}
-.stage .shirt{overflow:hidden}
-@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
-.stage-col{grid-template-columns:minmax(0,1fr);position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:14px}
-@media (max-width:880px){.stage-col{position:static}}
-.stage{border-radius:14px;overflow:hidden;position:relative;
-  background:repeating-linear-gradient(90deg,var(--turf1) 0 12.5%,var(--turf2) 12.5% 25%);
-  width:100%;aspect-ratio:1/0.82;max-width:100%;display:grid;place-items:center}
-.stage::before{content:"";position:absolute;inset:7% 6%;border:2px solid color-mix(in srgb,var(--chalk) 55%,transparent);border-radius:2px;pointer-events:none}
-.stage::after{content:"";position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid color-mix(in srgb,var(--chalk) 45%,transparent);border-radius:50%;pointer-events:none}
-.stage .shirt{width:min(72%,380px);position:relative;z-index:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.28))}
-.stage .shirt > svg{display:block;width:100%;height:auto}
-.stage-tools{position:absolute;right:10px;top:10px;z-index:2;display:flex;gap:6px}
-.stage.drop{outline:3px dashed var(--accent);outline-offset:-6px}
-.sizes{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.sz{display:grid;justify-items:center;gap:4px;font:600 .72rem var(--f-display);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
-.sz .box{display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;background:#ffffff}
-.sz .box > svg{display:block}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
-.card h2{font:700 1.05rem/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.card h2 small{font:500 .8rem var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted)}
-.strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
-.thumb{flex:0 0 auto;width:68px;border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:6px 4px 4px;cursor:pointer;display:grid;justify-items:center;gap:2px;color:var(--ink);font:600 .68rem/1.1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;position:relative}
-.thumb:hover{border-color:var(--accent)}
-.thumb > svg{width:48px;height:48px}
-.thumb .x{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;border:0;background:var(--panel);color:var(--muted);font:600 12px/18px var(--f-body);padding:0;cursor:pointer}
-.empty{color:var(--muted);font-size:.88rem;margin:0}
-.controls{display:grid;gap:14px;min-width:0}
-.row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:10px}
-.row:last-child{margin-bottom:0}
-.row > label,.row > .lbl{font:600 .82rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-@media (max-width:420px){.row{grid-template-columns:1fr;gap:4px}}
-.color{display:flex;gap:8px;align-items:center}
-input[type=color]{width:40px;height:32px;padding:0;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer}
-input[type=color]::-webkit-color-swatch-wrapper{padding:3px}
-input[type=color]::-webkit-color-swatch{border:0;border-radius:5px}
-input[type=text],select,textarea{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:6px 9px;min-width:0}
-input.hex{width:92px;font-family:var(--f-mono);font-size:.82rem;text-transform:lowercase}
-select{width:100%}
-.range{display:flex;gap:10px;align-items:center}
-.range input{flex:1;accent-color:var(--accent);min-width:0}
-.range output{font:500 .8rem var(--f-mono);color:var(--muted);width:4.4ch;text-align:right;font-variant-numeric:tabular-nums}
-.check{display:flex;gap:8px;align-items:center;font-size:.92rem;cursor:pointer}
-.check input{accent-color:var(--accent);width:16px;height:16px}
-.patterns{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-bottom:14px}
-.pat{border:1px solid var(--line);background:var(--soft);border-radius:9px;padding:4px 2px 3px;cursor:pointer;display:grid;justify-items:center;gap:1px;color:var(--muted);font:600 .66rem/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase}
-.pat > span > svg{display:block;width:40px;height:40px}
-.pat[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--ink)}
-button{font:inherit}
-.btn{font:600 .9rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;border-radius:8px;padding:7px 12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.small{padding:4px 9px;font-size:.78rem}
-.btn.onturf{background:rgba(255,255,255,.92);color:#17201c;border-color:transparent}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.pat:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.slot{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px}
-.slot:first-of-type{border-top:0;padding-top:0;margin-top:0}
-.slot-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.slot-head b{font:700 .95rem var(--f-display);letter-spacing:.06em;text-transform:uppercase}
-.slot-head .fname{font-size:.82rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:20ch}
-.file{position:relative;overflow:hidden}
-.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
-textarea{width:100%;font:400 .74rem/1.45 var(--f-mono);resize:vertical}
-.note{font-size:.82rem;color:var(--muted);margin:8px 0 0}
-.import{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start}
-.import-drop{width:96px;height:96px;border:1px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;font-size:.75rem;color:var(--muted);padding:6px;background:var(--soft)}
-.import-drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--soft))}
-.import-drop img{max-width:100%;max-height:100%;image-rendering:pixelated}
-.import-body{display:grid;gap:10px;min-width:0}
-.swatches{display:flex;gap:6px;flex-wrap:wrap}
-.swatches:empty{display:none}
-.sw{display:flex;align-items:center;gap:6px;font:500 .74rem var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 8px 2px 3px}
-.sw i{width:16px;height:16px;border-radius:50%;border:1px solid var(--line);display:block}
-.inv-sw{display:inline-flex;gap:3px;margin-left:4px}
-.inv-sw i{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);display:block}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-weight:600;font-size:.9rem;z-index:10}
-.hidden-ctl{display:none}
-@media (prefers-reduced-motion:no-preference){.stage .shirt > svg{transition:transform .2s}.stage .shirt:hover > svg{transform:scale(1.02)}}
-</style>
-
-<div class="wrap">
-  <header class="top">
-    <h1>Kit <span>Room</span></h1>
-    <p class="tag">Design a shirt, drop in your club crest, copy the SVG straight into your game.</p>
-  </header>
-
-  <div class="grid">
-    <div class="stage-col">
-      <div class="stage">
-        <div class="stage-tools">
-          <label class="btn small onturf file" title="Open a shirt SVG made in Kit Room">Open SVG<input type="file" accept=".svg,image/svg+xml" id="openSvg"></label><button class="btn small onturf" id="randomize" type="button">Random kit</button>
-        </div>
-        <div class="shirt" id="preview"></div>
-      </div>
-
-      <div class="card">
-        <h2>Icon <small>64px on white</small></h2>
-        <div class="sizes" id="sizes"></div>
-      </div>
-
-      <div class="card">
-        <h2>Starter kits <small>click to load</small></h2>
-        <div class="strip" id="presets"></div>
-      </div>
-
-      <div class="card">
-        <h2>Your kits <button class="btn small primary" id="saveKit" type="button">Save kit</button></h2>
-        <div class="strip" id="saved"></div>
-        <p class="empty" id="savedEmpty">Saved kits stay in this browser. Use Copy config below to keep one for good.</p>
-      </div>
-    </div>
-
-    <div class="controls">
-      <section class="card" id="importCard">
-        <h2>Start from an image <small>PNG, JPG or WebP</small></h2>
-        <div class="import">
-          <div class="import-drop" id="importDrop">
-            <img id="importImg" alt="Uploaded jersey" hidden>
-            <span id="importHint">Drop a jersey icon here</span>
-          </div>
-          <div class="import-body">
-            <p class="note" style="margin:0" id="importText">Kit Room reads the colours, pattern, sleeves, cuffs and collar from the picture. Crests and numbers stay as you set them.</p>
-            <div class="swatches" id="importSwatches"></div>
-            <div class="btns"><label class="btn small primary file">Upload image<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" id="importFile"></label><button class="btn small" type="button" id="importUndo" hidden>Undo</button></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Shirt</h2>
-        <div class="row"><label for="c-base">Ground</label><div class="color"><input type="color" id="c-base" data-k="base"><input type="text" class="hex" id="h-base" data-hex="base" aria-label="Ground hex"></div></div>
-        <div class="row"><label for="c-outline">Outline</label><div class="color"><input type="color" id="c-outline" data-k="outline"><input type="text" class="hex" id="h-outline" data-hex="outline" aria-label="Outline hex"></div></div>
-        <div class="row"><label for="r-outlineW">Outline width</label><div class="range"><input type="range" id="r-outlineW" min="0" max="3" step="0.1" data-k="outlineW"><output></output></div></div>
-        <div class="row"><label for="r-shading">Shading</label><div class="range"><input type="range" id="r-shading" min="0" max="100" step="1" data-k="shading"><output></output></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Shape <button class="btn small" id="resetShape" type="button">Reset shape</button></h2>
-        <div class="row"><label for="r-shirtLen">Shirt length</label><div class="range"><input type="range" id="r-shirtLen" min="75" max="130" step="1" data-k="shirtLen" data-unit="%"><output></output></div></div>
-        <div class="row"><label for="r-shirtWid">Shirt width</label><div class="range"><input type="range" id="r-shirtWid" min="75" max="130" step="1" data-k="shirtWid" data-unit="%"><output></output></div></div>
-        <div class="row"><label for="r-sleeveLen">Sleeve length</label><div class="range"><input type="range" id="r-sleeveLen" min="40" max="160" step="1" data-k="sleeveLen" data-unit="%"><output></output></div></div>
-        <div class="row"><label for="r-sleeveWid">Sleeve width</label><div class="range"><input type="range" id="r-sleeveWid" min="55" max="130" step="1" data-k="sleeveWid" data-unit="%"><output></output></div></div>
-        <div class="row" id="cuffWidRow"><label for="r-cuffWid">Cuff width</label><div class="range"><input type="range" id="r-cuffWid" min="30" max="250" step="5" data-k="cuffWid" data-unit="%"><output></output></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Pattern</h2>
-        <div class="patterns" id="patterns" role="group" aria-label="Pattern"></div>
-        <div class="row" data-show="color1"><label for="c-p1">Pattern colour</label><div class="color"><input type="color" id="c-p1" data-k="p1"><input type="text" class="hex" id="h-p1" data-hex="p1" aria-label="Pattern hex"></div></div>
-        <div class="row" data-show="twoTone"><span class="lbl">Second colour</span><label class="check"><input type="checkbox" id="k-twoTone" data-k="twoTone"> <span id="twoToneLabel">Alternate with a second colour</span></label></div>
-        <div class="row" data-show="color2"><label for="c-p2">Colour 2</label><div class="color"><input type="color" id="c-p2" data-k="p2"><input type="text" class="hex" id="h-p2" data-hex="p2" aria-label="Second colour hex"></div></div>
-        <div class="row" data-show="color3"><label for="c-p3">Colour 3</label><div class="color"><input type="color" id="c-p3" data-k="p3"><input type="text" class="hex" id="h-p3" data-hex="p3" aria-label="Third colour hex"></div></div>
-        <div class="row" data-show="count"><label for="r-count">Count</label><div class="range"><input type="range" id="r-count" min="1" max="12" step="1" data-k="count"><output></output></div></div>
-        <div class="row" data-show="width"><label for="r-width">Thickness</label><div class="range"><input type="range" id="r-width" min="5" max="90" step="1" data-k="width"><output></output></div></div>
-        <div class="row" data-show="angle"><label for="r-angle">Angle</label><div class="range"><input type="range" id="r-angle" min="-60" max="60" step="1" data-k="angle"><output></output></div></div>
-        <div class="row" data-show="pos"><label for="r-pos">Position</label><div class="range"><input type="range" id="r-pos" min="-24" max="24" step="0.5" data-k="pos"><output></output></div></div>
-        <div class="row" data-show="vpos"><label for="r-vpos">Bar height</label><div class="range"><input type="range" id="r-vpos" min="-18" max="40" step="0.5" data-k="vpos"><output></output></div></div>
-        <div class="row" data-show="gap"><label for="r-gap" id="gapLabel">Centre gap</label><div class="range"><input type="range" id="r-gap" min="0" max="30" step="1" data-k="gap"><output></output></div></div>
-        <div class="row" data-show="jagged"><span class="lbl">Edges</span><label class="check"><input type="checkbox" id="k-jagged" data-k="jagged"> Stepped, jagged edges</label></div>
-        <div class="row" data-show="flip"><span class="lbl">Mirror</span><label class="check"><input type="checkbox" id="k-flip" data-k="flip"> Flip left and right</label></div>
-        <div class="row" data-show="center"><span class="lbl">Alignment</span><label class="check"><input type="checkbox" id="k-center" data-k="center"> Stripe down the middle</label></div>
-      </section>
-
-      <section class="card">
-        <h2>Mottling <small>texture over the shirt</small></h2>
-        <div class="row"><label for="s-mottle">Style</label><select id="s-mottle" data-k="mottle"><option value="off">None</option><option value="speckle">Speckled</option><option value="blotch">Blotchy</option><option value="lattice">Ornament lattice</option><option value="weave">Woven grid</option><option value="zebra">Zebra</option><option value="leaves">Leaf herringbone</option><option value="streaks">Brush streaks</option></select></div>
-        <div class="row" data-mottle><label for="c-mottleColor">Colour</label><div class="color"><input type="color" id="c-mottleColor" data-k="mottleColor"><input type="text" class="hex" id="h-mottleColor" data-hex="mottleColor" aria-label="Mottling hex"></div></div>
-        <div class="row" data-mottle><label for="r-mottleStrength">Strength</label><div class="range"><input type="range" id="r-mottleStrength" min="5" max="100" step="1" data-k="mottleStrength" data-unit="%"><output></output></div></div>
-        <div class="row" data-mottle><label for="r-mottleScale">Scale</label><div class="range"><input type="range" id="r-mottleScale" min="40" max="250" step="5" data-k="mottleScale" data-unit="%"><output></output></div></div>
-        <div class="row" data-mottle><span class="lbl">Sleeves</span><label class="check"><input type="checkbox" id="k-mottleSleeves" data-k="mottleSleeves"> Mottle the sleeves too</label></div>
-        <div class="row" id="mottleSeedRow"><span class="lbl">Variation</span><div class="btns"><button class="btn small" type="button" id="mottleShuffle">Shuffle</button><span class="note" style="margin:0" id="mottleSeedNote"></span></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Sleeves &amp; collar</h2>
-        <div class="row"><span class="lbl">Pattern</span><label class="check"><input type="checkbox" id="k-patternSleeves" data-k="patternSleeves"> Run pattern onto sleeves</label></div>
-        <div class="row" id="sleeveRow"><label for="c-sleeve">Sleeves</label><div class="color"><input type="color" id="c-sleeve" data-k="sleeve"><input type="text" class="hex" id="h-sleeve" data-hex="sleeve" aria-label="Sleeve hex"></div></div>
-        <div class="row"><span class="lbl">Cuffs</span><label class="check"><input type="checkbox" id="k-cuff" data-k="cuff"> Contrast cuffs</label></div>
-        <div class="row" id="cuffStripeRow"><span class="lbl">Cuff stripe</span><div class="color"><label class="check"><input type="checkbox" id="k-cuffStripe" data-k="cuffStripe"> On</label><input type="color" id="c-cuffStripeColor" data-k="cuffStripeColor" aria-label="Cuff stripe colour"><input type="text" class="hex" id="h-cuffStripeColor" data-hex="cuffStripeColor" aria-label="Cuff stripe hex"></div></div>
-        <div class="row" id="cuffRow"><label for="c-cuffColor">Cuff colour</label><div class="color"><input type="color" id="c-cuffColor" data-k="cuffColor"><input type="text" class="hex" id="h-cuffColor" data-hex="cuffColor" aria-label="Cuff hex"></div></div>
-        <div class="row"><span class="lbl">Shoulders</span><label class="check"><input type="checkbox" id="k-shStripes" data-k="shStripes"> Three shoulder stripes</label></div>
-        <div class="row" id="shRow"><label for="c-shColor">Stripe colour</label><div class="color"><input type="color" id="c-shColor" data-k="shColor"><input type="text" class="hex" id="h-shColor" data-hex="shColor" aria-label="Shoulder stripe hex"></div></div>
-        <div class="row"><label for="s-collar">Collar</label><select id="s-collar" data-k="collar"><option value="round">Round neck</option><option value="crew">High crew</option><option value="v">V-neck</option><option value="polo">Polo</option></select></div>
-        <div class="row"><label for="c-collarColor">Collar colour</label><div class="color"><input type="color" id="c-collarColor" data-k="collarColor"><input type="text" class="hex" id="h-collarColor" data-hex="collarColor" aria-label="Collar hex"></div></div>
-        <div class="row"><span class="lbl">Collar stripe</span><div class="color"><label class="check"><input type="checkbox" id="k-collarStripe" data-k="collarStripe"> On</label><input type="color" id="c-collarStripeColor" data-k="collarStripeColor" aria-label="Collar stripe colour"><input type="text" class="hex" id="h-collarStripeColor" data-hex="collarStripeColor" aria-label="Collar stripe hex"></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Badges <small>upload any SVG</small></h2>
-        <div id="slots"></div>
-        <div class="slot">
-          <div class="slot-head"><b>Maker logo</b></div>
-          <div class="row"><label for="s-makerLogo">Logo</label><select id="s-makerLogo" data-k="makerLogo"><option value="none">None</option><option value="adidas">Adidas</option><option value="puma">Puma</option><option value="nike">Nike</option><option value="kelme">Kelme</option><option value="marathon">Marathon</option><option value="umbro">Umbro</option><option value="capelli">Capelli Sport</option><option value="saeta">Saeta</option><option value="kappa">Kappa</option><option value="kappafig">Kappa (figures only)</option><option value="merooj">Merooj</option><option value="reebok">Reebok</option><option value="sudu">Sudu</option><option value="hummel">Hummel</option><option value="jako">Jako</option><option value="legea">Legea</option><option value="castore">Castore</option><option value="joma">Joma</option><option value="macron">Macron</option></select></div>
-          <div class="row" data-maker><label for="c-makerColor">Colour</label><div class="color"><input type="color" id="c-makerColor" data-k="makerColor"><input type="text" class="hex" id="h-makerColor" data-hex="makerColor" aria-label="Maker logo hex"></div></div>
-          <div class="row" data-maker><label for="s-makerPos">Position</label><select id="s-makerPos" data-k="makerPos"><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option><option value="M">Centre front</option></select></div>
-          <div class="row" data-maker><label for="r-makerSize">Size</label><div class="range"><input type="range" id="r-makerSize" min="3" max="30" step="0.5" data-k="makerSize"><output></output></div></div>
-          <div class="row" data-maker><label for="r-makerDx">Nudge across</label><div class="range"><input type="range" id="r-makerDx" min="-12" max="12" step="0.5" data-k="makerDx"><output></output></div></div>
-          <div class="row" data-maker><label for="r-makerDy">Nudge down</label><div class="range"><input type="range" id="r-makerDy" min="-12" max="20" step="0.5" data-k="makerDy"><output></output></div></div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Stars <small>one per title won</small></h2>
-        <div class="row"><label for="r-stars">Stars</label><div class="range"><input type="range" id="r-stars" min="0" max="10" step="1" data-k="stars"><output></output></div></div>
-        <div class="row" data-star><label for="c-starColor">Colour</label><div class="color"><input type="color" id="c-starColor" data-k="starColor"><input type="text" class="hex" id="h-starColor" data-hex="starColor" aria-label="Star hex"></div></div>
-        <div class="row" data-star><label for="s-starPos">Position</label><select id="s-starPos" data-k="starPos"><option value="crest">Above the crest</option><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option></select></div>
-        <div class="row" data-star><label for="s-starLayout">Layout</label><select id="s-starLayout" data-k="starLayout"><option value="row">Straight row</option><option value="arc">Arc</option><option value="stack">Two rows</option></select></div>
-        <div class="row" data-star><label for="r-starSize">Size</label><div class="range"><input type="range" id="r-starSize" min="1.5" max="9" step="0.25" data-k="starSize"><output></output></div></div>
-        <div class="row" data-star><label for="r-starGap">Spacing</label><div class="range"><input type="range" id="r-starGap" min="0" max="4" step="0.1" data-k="starGap"><output></output></div></div>
-        <div class="row" data-star><label for="r-starDy">Nudge down</label><div class="range"><input type="range" id="r-starDy" min="-10" max="10" step="0.5" data-k="starDy"><output></output></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Number</h2>
-        <div class="row"><label for="t-number">Number</label><input type="text" id="t-number" data-k="number" maxlength="3" placeholder="e.g. 10" style="width:90px"></div>
-        <div class="row"><label for="c-numColor">Colour</label><div class="color"><input type="color" id="c-numColor" data-k="numColor"><input type="text" class="hex" id="h-numColor" data-hex="numColor" aria-label="Number hex"></div></div>
-        <div class="row"><label for="c-numStroke">Edge</label><div class="color"><input type="color" id="c-numStroke" data-k="numStroke"><input type="text" class="hex" id="h-numStroke" data-hex="numStroke" aria-label="Number edge hex"><label class="check"><input type="checkbox" id="k-numEdge" data-k="numEdge"> On</label></div></div>
-        <div class="row"><label for="s-numPos">Position</label><select id="s-numPos" data-k="numPos"><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option><option value="B">Big, centre front</option></select></div>
-        <div class="row"><label for="r-numSize">Size</label><div class="range"><input type="range" id="r-numSize" min="6" max="44" step="1" data-k="numSize"><output></output></div></div>
-      </section>
-
-      <section class="card">
-        <h2>Export</h2>
-        <div class="row"><label for="s-exportSize">Size attribute</label><select id="s-exportSize"><option value="">None (scales to container)</option><option value="32">32 × 32</option><option value="64">64 × 64</option><option value="128" selected>128 × 128</option><option value="256">256 × 256</option></select></div>
-        <div class="row"><span class="lbl">Reopen later</span><label class="check"><input type="checkbox" id="k-embed" checked> Save the settings inside the SVG, so Open SVG can load it again</label></div>
-        <div class="row"><label for="t-fname">File name</label><input type="text" id="t-fname" value="kit-home.svg" spellcheck="false"></div>
-        <div class="btns"><button class="btn primary" id="downloadSvg" type="button">Download SVG</button><button class="btn" id="copySvg" type="button">Copy SVG</button><button class="btn" id="copyCfg" type="button">Copy config</button><span class="note" id="bytes" style="margin:0"></span></div>
-        <textarea id="svgOut" rows="7" readonly aria-label="SVG code" style="margin-top:10px"></textarea>
-        <p class="note">Download the file, or paste the SVG inline in your game. To change a shirt later, use Open SVG above the preview, or drop the file onto the shirt.</p>
-        <details style="margin-top:10px">
-          <summary class="lbl" style="cursor:pointer;font:600 .85rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Load a config</summary>
-          <textarea id="cfgIn" rows="4" placeholder='Paste kit config JSON here' style="margin-top:8px"></textarea>
-          <div class="btns" style="margin-top:8px"><button class="btn" id="loadCfg" type="button">Load config</button></div>
-        </details>
-      </section>
-    </div>
-  </div>
-</div>
-<div class="toast" id="toast" hidden></div>
-
-<script>
-(() => {
+/* Kit Room engine: draws shirts as SVG text. Loaded with <script> before kit-room.js and available as window.KitEngine.
+   randomKit() is the reference for random.php: the same seed gives the same shirt in both. */
+window.KitEngine = (function(){
 "use strict";
 const SAMPLE_CREST = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 48"><path d="M20 1 L38 6 V22 C38 35 30 42 20 47 C10 42 2 35 2 22 V6 Z" fill="#14325c" stroke="#e8c14a" stroke-width="2"/><path d="M4 18 H36 V26 H4 Z" fill="#e8c14a"/><path d="M20 30 l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="#ffffff"/><text x="20" y="14" font-family="Arial,sans-serif" font-weight="700" font-size="8" fill="#ffffff" text-anchor="middle">FC</text></svg>`;
 
@@ -301,125 +35,17 @@ const DEFAULT = {
   makerLogo:"none", makerColor:"#ffffff", makerPos:"L", makerSize:8, makerDx:0, makerDy:0,
   stars:0, starColor:"#f2c230", starPos:"crest", starLayout:"row", starSize:4, starGap:0.8, starDy:0,
   number:"", numColor:"#ffffff", numStroke:"#1d2226", numEdge:false, numPos:"L", numSize:14,
+  text:"", textColor:"#ffffff", textSize:7, textDy:0,
   logos:[{name:"Example crest",src:SAMPLE_CREST,pos:"R",size:15,dx:0,dy:0,invert:false,recolor:false,tint:"#ffffff"},{name:"",src:"",pos:"L",size:9,dx:0,dy:0,invert:false,recolor:false,tint:"#ffffff"}]
 };
 const clone = o => JSON.parse(JSON.stringify(o));
 const NOLOGO=[{name:"",src:"",pos:"R",size:14,dx:0,dy:0},{name:"",src:"",pos:"L",size:9,dx:0,dy:0}];
-const PRESETS = [
-  ["Sky stripes",{}],
-  ["Royal ten",{base:"#1f4fb8",pattern:"plain",sleeve:"#1f4fb8",cuffColor:"#ffffff",collarColor:"#ffffff",collar:"v",number:"10",numColor:"#ffffff",numPos:"L",numSize:15,shading:45,outline:"#0f1f45",logos:[{name:"Example crest",src:SAMPLE_CREST,pos:"R",size:14,dx:0,dy:0},{name:"",src:"",pos:"L",size:9,dx:0,dy:0}]}],
-  ["Green hoops",{pattern:"hoops",p1:"#1f9a4a",count:6,width:50,patternSleeves:true,cuffColor:"#1f9a4a",collarColor:"#1f9a4a",collar:"crew",shading:25,outline:"#1a3a26",logos:[{name:"",src:"",pos:"R",size:14,dx:0,dy:0},{name:"",src:"",pos:"L",size:9,dx:0,dy:0}]}],
-  ["Claret sash",{pattern:"sash",p1:"#7a1f3d",width:38,angle:0,twoTone:true,p2:"#e3b04b",sleeve:"#ffffff",cuffColor:"#7a1f3d",collarColor:"#7a1f3d"}],
-  ["Gold halves",{base:"#f2c230",pattern:"halves",p1:"#141414",sleeve:"#f2c230",patternSleeves:true,cuffColor:"#141414",collarColor:"#141414",collar:"polo"}],
-  ["Red checks",{pattern:"checkers",p1:"#d7262f",count:6,patternSleeves:false,sleeve:"#d7262f",cuffColor:"#ffffff",collarColor:"#d7262f",collar:"v"}],
-  ["Night pinstripe",{base:"#15181d",pattern:"pinstripes",p1:"#5b6675",count:6,sleeve:"#15181d",cuffColor:"#c9a24a",collarColor:"#c9a24a",outline:"#000000",number:"9",numColor:"#c9a24a",numPos:"B",numSize:30}],
-  ["Orange chevron",{base:"#ff7a1a",pattern:"chevron",p1:"#101820",width:30,twoTone:true,p2:"#ffffff",sleeve:"#101820",cuffColor:"#ff7a1a",collarColor:"#101820"}],
-  ["Gold swoosh",{base:"#f2b33d",pattern:"swoosh",p1:"#0b7a4b",twoTone:true,p2:"#f2b33d",count:3,width:45,patternSleeves:true,sleeve:"#f2b33d",cuffColor:"#0b7a4b",collarColor:"#0b7a4b",collar:"crew"}],
-  ["Tricolour chevrons",{base:"#f7f7f5",pattern:"chevrons",p1:"#141414",p2:"#dd1f26",p3:"#f5b81c",count:3,width:40,angle:35,pos:6,jagged:true,
-    sleeve:"#f7f7f5",cuff:true,cuffColor:"#141414",cuffStripe:true,cuffStripeColor:"#dd1f26",collar:"v",collarColor:"#141414",collarStripe:true,collarStripeColor:"#dd1f26",
-    outline:"#2a2a2a",shading:30,shirtLen:106,shirtWid:92,sleeveWid:80,sleeveLen:95,stars:4,starColor:"#141414",starSize:2.8,starGap:0.5,logos:[{name:"Example crest",src:SAMPLE_CREST,pos:"R",size:11,dx:0,dy:9},{name:"",src:"",pos:"L",size:9,dx:0,dy:0}]}],
-  ["White pin hoops",{base:"#f4f5f8",pattern:"pinhoops",p1:"#e0592a",count:9,sleeve:"#f4f5f8",patternSleeves:true,cuffColor:"#1d2a5c",collarColor:"#1d2a5c",collar:"v",outline:"#8a90a0"}],
-  ["Blue fan",{base:"#1f56b5",pattern:"fan",p1:"#3f78d6",count:7,width:30,sleeve:"#1f56b5",cuff:false,shStripes:true,shColor:"#ffffff",collarColor:"#f0b84a"}],
-  ["Sky tri-stripe",{base:"#4b9be0",pattern:"offset",p1:"#d62828",twoTone:true,p2:"#f6d024",count:3,width:35,pos:14,sleeve:"#4b9be0",cuff:false,collarColor:"#d62828",collar:"crew"}],
-  ["Red wedges",{base:"#e03a3a",pattern:"wedges",p1:"#1f4fb8",width:40,sleeve:"#e03a3a",cuff:false,collarColor:"#1f4fb8",collar:"v"}],
-  ["Blue shoulders",{base:"#1f4fb8",pattern:"shoulders",p1:"#ffffff",width:45,sleeve:"#ffffff",cuffColor:"#1f4fb8",collarColor:"#ffffff",number:"10",numColor:"#ffffff",numPos:"L",numSize:14}],
-  ["Red side curves",{base:"#d9312b",pattern:"sidecurves",p1:"#ffffff",width:35,sleeve:"#d9312b",cuffColor:"#ffffff",collarColor:"#ffffff",collar:"polo"}],
-  ["Black raglan",{base:"#f6f6f6",pattern:"raglan",p1:"#141414",sleeve:"#141414",cuffColor:"#ffffff",collarColor:"#141414",collar:"crew"}],
-  ["White ornament",{base:"#f7f8fa",pattern:"plain",mottle:"lattice",mottleColor:"#b9bfc8",mottleStrength:55,mottleScale:100,
-    sleeve:"#f7f8fa",cuff:false,collar:"crew",collarColor:"#2b3f9e",collarStripe:true,collarStripeColor:"#2e9a43",outline:"#8d939c",shading:28,
-    logos:[{name:"Example crest",src:SAMPLE_CREST,pos:"R",size:13,dx:0,dy:2},{name:"",src:"",pos:"L",size:9,dx:0,dy:0}]}],
-  ["Red speckle",{base:"#c8202b",pattern:"plain",mottle:"speckle",mottleColor:"#7d0f17",mottleStrength:60,mottleScale:100,mottleSleeves:true,sleeve:"#c8202b",cuffColor:"#ffffff",collarColor:"#ffffff",collar:"v"}],
-  // 2026 World Cup home shirts: colours and patterns only, no crests or maker logos
-  ["Australia",{base:"#f2ae36",pattern:"sides",p1:"#045244",width:10,sleeve:"#f2ae36",cuff:false,collar:"v",collarColor:"#045244",outline:"#5c4210",shading:30,logos:NOLOGO}],
-  ["Uruguay",{base:"#8db5dc",pattern:"raglan",p1:"#8db5dc",twoTone:true,p2:"#1c2f5e",sleeve:"#8db5dc",cuff:false,collar:"polo",collarColor:"#eeeeef",outline:"#31506f",stars:4,starColor:"#c9a24a",starSize:2.6,starGap:0.4,logos:NOLOGO}],
-  ["Scotland",{base:"#232b45",pattern:"plain",mottle:"lattice",mottleColor:"#141a2c",mottleStrength:70,mottleScale:170,mottleSleeves:true,sleeve:"#232b45",shStripes:true,shColor:"#ffffff",cuff:true,cuffColor:"#e5e5e9",collar:"v",collarColor:"#232b45",collarStripe:true,collarStripeColor:"#ffffff",outline:"#0e1220",logos:NOLOGO}],
-  ["Ghana",{base:"#ededec",pattern:"burst",p1:"#d7263a",twoTone:true,p2:"#f0b21b",p3:"#1d8a4a",count:13,width:10,pos:14,sleeve:"#ededec",cuff:false,collar:"crew",collarColor:"#262322",outline:"#4a4a4a",stars:1,starColor:"#1d1b1a",starPos:"C",starSize:9,starDy:9,logos:NOLOGO}],
-  ["Sweden",{base:"#f5da45",pattern:"shoulders",p1:"#0b3f98",width:40,patternSleeves:true,sleeve:"#f5da45",shStripes:true,shColor:"#ffffff",cuff:true,cuffColor:"#0b3f98",cuffStripe:true,cuffStripeColor:"#f5da45",collar:"crew",collarColor:"#0b3f98",collarStripe:true,collarStripeColor:"#f5da45",outline:"#5c5010",logos:NOLOGO}],
-  ["Netherlands",{base:"#fb6a43",pattern:"plain",sleeve:"#fb6a43",cuff:true,cuffColor:"#0d0b0b",collar:"v",collarColor:"#0d0b0b",collarStripe:true,collarStripeColor:"#9a0a14",outline:"#5a1e10",logos:NOLOGO}],
-  ["Morocco",{base:"#c00f30",pattern:"sides",p1:"#20a24c",width:14,sleeve:"#c00f30",cuff:true,cuffColor:"#d9c59b",cuffStripe:true,cuffStripeColor:"#c00f30",collar:"crew",collarColor:"#d9c59b",collarStripe:true,collarStripeColor:"#1f8a4a",outline:"#4a0612",logos:NOLOGO}],
-  ["USA",{base:"#f3f0ef",pattern:"waves",p1:"#e1373d",count:6,width:42,angle:-12,patternSleeves:true,sleeve:"#f3f0ef",cuff:true,cuffColor:"#17213d",collar:"v",collarColor:"#17213d",outline:"#3a3f52",logos:NOLOGO}],
-  ["Spain",{base:"#e8333b",pattern:"pinstripes",p1:"#f0b62b",count:6,sleeve:"#252b56",shStripes:true,shColor:"#f0b62b",cuff:false,collar:"crew",collarColor:"#252b56",outline:"#3a0a10",stars:1,starColor:"#f0b62b",starSize:3,logos:NOLOGO}],
-  ["South Korea",{base:"#c51c2e",pattern:"plain",mottle:"blotch",mottleColor:"#7c040d",mottleStrength:65,mottleScale:130,mottleSleeves:true,mottleSeed:31,sleeve:"#c51c2e",cuff:true,cuffColor:"#0a0606",cuffStripe:true,cuffStripeColor:"#ffffff",collar:"v",collarColor:"#8a0610",outline:"#3d050b",logos:NOLOGO}],
-  ["Portugal",{base:"#a03433",pattern:"waves",p1:"#b8524c",count:14,width:12,angle:0,patternSleeves:true,sleeve:"#a03433",cuff:true,cuffColor:"#047468",collar:"v",collarColor:"#047468",outline:"#3a1010",logos:NOLOGO}],
-  ["Mexico",{base:"#0a8770",pattern:"rings",p1:"#065546",count:7,width:32,pos:18,sleeve:"#0a8770",shStripes:true,shColor:"#ffffff",cuff:true,cuffColor:"#d0153a",collar:"v",collarColor:"#d0153a",collarStripe:true,collarStripeColor:"#ffffff",outline:"#033a30",logos:NOLOGO}],
-  ["France",{base:"#0f2453",pattern:"diagonal",p1:"#103f92",count:8,width:45,angle:-35,patternSleeves:true,sleeve:"#0f2453",cuff:false,collar:"polo",collarColor:"#e2e4e9",collarStripe:true,collarStripeColor:"#d1162e",outline:"#070f26",stars:2,starColor:"#d9a066",starSize:3,logos:NOLOGO}],
-  ["Côte d'Ivoire",{base:"#f9650a",pattern:"sides",p1:"#058c6a",width:10,mottle:"blotch",mottleColor:"#d84a00",mottleStrength:70,mottleScale:80,mottleSleeves:true,mottleSeed:12,sleeve:"#f9650a",cuff:false,collar:"crew",collarColor:"#058c6a",outline:"#5a2400",stars:3,starColor:"#ffffff",starSize:2.6,logos:NOLOGO}],
-  ["Colombia",{base:"#f2d94e",pattern:"plain",mottle:"blotch",mottleColor:"#dcb914",mottleStrength:45,mottleSleeves:true,mottleSeed:5,sleeve:"#f2d94e",shStripes:true,shColor:"#e8513c",cuff:true,cuffColor:"#1a6fd0",collar:"v",collarColor:"#1a6fd0",outline:"#5c5010",logos:NOLOGO}],
-  ["Argentina",{base:"#ecebf5",pattern:"stripes",p1:"#79bde6",count:5,width:45,center:false,sleeve:"#ecebf5",shStripes:true,shColor:"#283244",cuff:true,cuffColor:"#283244",cuffStripe:true,cuffStripeColor:"#79bde6",collar:"crew",collarColor:"#283244",collarStripe:true,collarStripeColor:"#79bde6",outline:"#3a4256",stars:3,starColor:"#c9a24a",starSize:2.6,starGap:0.4,logos:NOLOGO}],
-  ["Switzerland",{base:"#dc0b2a",pattern:"sides",p1:"#f4f2f3",width:12,mottle:"speckle",mottleColor:"#b0031c",mottleStrength:35,sleeve:"#dc0b2a",cuff:false,collar:"crew",collarColor:"#dc0b2a",outline:"#4a0410",logos:NOLOGO}],
-  ["Norway",{base:"#e6162a",pattern:"cross",p1:"#13295a",twoTone:true,p2:"#ffffff",width:34,pos:-12,patternSleeves:true,sleeve:"#e6162a",cuff:false,collar:"crew",collarColor:"#e6162a",outline:"#4a0610",logos:NOLOGO}],
-  ["Japan",{base:"#1f3a86",pattern:"burst",p1:"#5a78c8",count:9,width:8,pos:16,sleeve:"#1f3a86",shStripes:true,shColor:"#ffffff",cuff:false,collar:"v",collarColor:"#e53a4a",collarStripe:true,collarStripeColor:"#ffffff",outline:"#0b1636",logos:NOLOGO}],
-  ["Brazil",{base:"#e6c90c",pattern:"plain",mottle:"lattice",mottleColor:"#d2af00",mottleStrength:40,mottleScale:150,sleeve:"#e6c90c",cuff:true,cuffColor:"#1d3227",collar:"v",collarColor:"#1d3227",outline:"#4a4004",stars:5,starColor:"#1f7a3d",starSize:2.4,starGap:0.3,logos:NOLOGO}],
-  ["Belgium",{base:"#d41730",pattern:"plain",mottle:"blotch",mottleColor:"#a00a20",mottleStrength:45,mottleScale:110,mottleSleeves:true,mottleSeed:44,sleeve:"#d41730",shStripes:true,shColor:"#f6b04f",cuff:true,cuffColor:"#0f0d0c",cuffStripe:true,cuffStripeColor:"#f6b04f",collar:"crew",collarColor:"#0f0d0c",collarStripe:true,collarStripeColor:"#f6b04f",outline:"#4a0610",logos:NOLOGO}],
-  ["England",{base:"#eeeef2",pattern:"sides",p1:"#e0324e",width:5,sleeve:"#eeeef2",cuff:true,cuffColor:"#201d33",cuffStripe:true,cuffStripeColor:"#e0324e",collar:"round",collarColor:"#201d33",collarStripe:true,collarStripeColor:"#e0324e",outline:"#5a5a66",stars:1,starColor:"#d4a54a",starSize:2.6,logos:NOLOGO}],
-  ["Croatia",{base:"#f2f2f2",pattern:"checkers",p1:"#f42220",count:9,gap:10,patternSleeves:true,sleeve:"#f2f2f2",cuff:false,collar:"crew",collarColor:"#f42220",outline:"#5a1010",logos:NOLOGO}],
-  ["Paraguay",{base:"#f4eef0",pattern:"stripes",p1:"#ec3d48",count:5,width:42,center:false,patternSleeves:true,sleeve:"#f4eef0",mottle:"speckle",mottleColor:"#ffffff",mottleStrength:75,mottleScale:120,mottleSleeves:true,mottleSeed:9,cuff:true,cuffColor:"#0588ce",collar:"crew",collarColor:"#0588ce",outline:"#5a2a30",logos:NOLOGO}],
-  ["Canada",{base:"#c4031c",pattern:"chevron",p1:"#a3000f",width:70,sleeve:"#c4031c",cuff:true,cuffColor:"#1a1a1a",cuffWid:40,collar:"crew",collarColor:"#a3000f",outline:"#4a0008",logos:NOLOGO}],
-  ["Austria",{base:"#e6292a",pattern:"sides",p1:"#2b2421",width:10,sleeve:"#2b2421",cuff:true,cuffColor:"#f2f2f2",cuffStripe:true,cuffStripeColor:"#e6292a",collar:"crew",collarColor:"#2b2421",outline:"#3a0a0a",logos:NOLOGO}],
-  ["Bosnia and Herzegovina",{base:"#0b2463",pattern:"pinstripes",p1:"#e8c52a",count:3,sleeve:"#13306f",cuff:true,cuffColor:"#13306f",cuffStripe:true,cuffStripeColor:"#e8c52a",collar:"crew",collarColor:"#0b2463",collarStripe:true,collarStripeColor:"#e8c52a",outline:"#040c26",logos:NOLOGO}],
-  ["Senegal",{base:"#f4ecef",pattern:"sides",p1:"#017064",width:10,mottle:"blotch",mottleColor:"#e8a9b6",mottleStrength:30,mottleScale:120,mottleSleeves:true,mottleSeed:23,sleeve:"#f4ecef",cuff:false,collar:"crew",collarColor:"#017064",outline:"#5a5a5a",logos:NOLOGO}],
-  ["Ecuador",{base:"#f6cc12",pattern:"plain",mottle:"weave",mottleColor:"#e0ab02",mottleStrength:35,sleeve:"#f6cc12",cuff:true,cuffColor:"#2b2d52",collar:"v",collarColor:"#2b2d52",collarStripe:true,collarStripeColor:"#b8263a",outline:"#5c4a04",logos:NOLOGO}],
-  ["DR Congo",{base:"#4fa0d8",pattern:"plain",p1:"#e9f3fb",mottle:"zebra",mottleColor:"#eef6fc",mottleStrength:85,mottleScale:130,mottleSeed:17,sleeve:"#4fa0d8",cuff:true,cuffColor:"#eef0f4",cuffStripe:true,cuffStripeColor:"#d83a35",collar:"crew",collarColor:"#d83a35",outline:"#1c4a6a",logos:NOLOGO}],
-  ["Cabo Verde",{base:"#0a4c96",pattern:"sides",p1:"#0e2242",width:28,mottle:"lattice",mottleColor:"#0c2d5a",mottleStrength:60,mottleScale:200,sleeve:"#0e2242",cuff:true,cuffColor:"#e04a2a",cuffWid:45,collar:"v",collarColor:"#c3ddeb",collarStripe:true,collarStripeColor:"#e04a2a",outline:"#06132a",logos:NOLOGO}],
-  ["Egypt",{base:"#d0232c",pattern:"burst",p1:"#a8141d",count:5,width:45,pos:4,sleeve:"#d0232c",cuff:false,collar:"crew",collarColor:"#22201d",outline:"#4a0a0e",stars:7,starColor:"#d6b26a",starSize:2,starGap:0.3,logos:NOLOGO}],
-  ["Algeria",{base:"#efebdf",pattern:"pinstripes",p1:"#e6cdb0",count:4,sleeve:"#efebdf",shStripes:true,shColor:"#06946f",cuff:true,cuffColor:"#06946f",cuffStripe:true,cuffStripeColor:"#d63a3a",collar:"crew",collarColor:"#06946f",collarStripe:true,collarStripeColor:"#d63a3a",outline:"#6a665a",logos:NOLOGO}],
-  ["Haiti",{base:"#0d57b0",pattern:"fade",p1:"#172d62",mottle:"lattice",mottleColor:"#0a3c80",mottleStrength:50,mottleScale:190,sleeve:"#0d57b0",cuff:true,cuffColor:"#d8263a",cuffStripe:true,cuffStripeColor:"#ffffff",collar:"polo",collarColor:"#0d57b0",collarStripe:true,collarStripeColor:"#ffffff",outline:"#071c40",logos:NOLOGO}],
-  ["Tunisia",{base:"#d9283a",pattern:"fade",p1:"#a3061d",sleeve:"#d9283a",cuff:true,cuffColor:"#f4f4f4",cuffWid:45,collar:"polo",collarColor:"#d9283a",collarStripe:true,collarStripeColor:"#ffffff",outline:"#4a0610",logos:NOLOGO}],
-  ["South Africa",{base:"#e8bf3e",pattern:"plain",mottle:"weave",mottleColor:"#cf9d14",mottleStrength:65,mottleScale:220,mottleSleeves:true,sleeve:"#e8bf3e",shStripes:true,shColor:"#1e7a3e",cuff:true,cuffColor:"#1e7a3e",collar:"crew",collarColor:"#1e7a3e",outline:"#5c4a0a",logos:NOLOGO}],
-  ["Jordan",{base:"#f6f6f8",pattern:"raglan",p1:"#ea8791",patternSleeves:true,sleeve:"#f6f6f8",mottle:"weave",mottleColor:"#e2e4ea",mottleStrength:60,cuff:false,collar:"crew",collarColor:"#f6f6f8",outline:"#7a7d86",logos:NOLOGO}],
-  ["Iraq",{base:"#1a8d89",pattern:"plain",mottle:"lattice",mottleColor:"#126e6b",mottleStrength:50,mottleScale:140,mottleSleeves:true,sleeve:"#1a8d89",cuff:true,cuffColor:"#1e1e1f",cuffStripe:true,cuffStripeColor:"#1a8d89",collar:"v",collarColor:"#1e1e1f",outline:"#073836",logos:NOLOGO}],
-  ["Iran",{base:"#f2f2f3",pattern:"plain",mottle:"blotch",mottleColor:"#c4c5c9",mottleStrength:35,mottleScale:90,mottleSleeves:true,mottleSeed:61,sleeve:"#f2f2f3",cuff:true,cuffColor:"#1f8a4a",cuffStripe:true,cuffStripeColor:"#d32a2a",collar:"v",collarColor:"#1f8a4a",collarStripe:true,collarStripeColor:"#d32a2a",outline:"#6a6a70",logos:NOLOGO}],
-  ["Türkiye",{base:"#b30c22",pattern:"band",p1:"#d32035",width:45,mottle:"zebra",mottleColor:"#7e0614",mottleStrength:55,mottleScale:110,mottleSleeves:true,mottleSeed:29,sleeve:"#b30c22",cuff:false,collar:"v",collarColor:"#b30c22",outline:"#3e040b",logos:NOLOGO}],
-  ["Czech Republic",{base:"#b0182b",pattern:"plain",p1:"#1e2f6b",sleeve:"#b0182b",cuff:true,cuffColor:"#1e2f6b",cuffStripe:true,cuffStripeColor:"#ffffff",collar:"crew",collarColor:"#1e2f6b",collarStripe:true,collarStripeColor:"#ffffff",outline:"#3e0810",logos:NOLOGO}],
-  ["New Zealand",{base:"#1c1c1c",pattern:"plain",mottle:"zebra",mottleColor:"#3a3a3a",mottleStrength:75,mottleScale:120,mottleSeed:83,sleeve:"#1c1c1c",cuff:false,collar:"crew",collarColor:"#1c1c1c",outline:"#5a5a5a",logos:NOLOGO}],
-  ["Panama",{base:"#f2f2f4",pattern:"raglan",p1:"#f2f2f4",twoTone:true,p2:"#c9953f",sleeve:"#f2f2f4",cuff:true,cuffColor:"#1d2a5c",cuffStripe:true,cuffStripeColor:"#c8253a",collar:"v",collarColor:"#1d2a5c",collarStripe:true,collarStripeColor:"#c8253a",outline:"#6a6e80",logos:NOLOGO}],
-  // European home shirts (batch 1): colours, patterns and maker logos where available, no crests
-  ["Albania",{makerLogo:"macron",makerColor:"#ffffff",base:"#cd0333",pattern:"waves",p1:"#a8022a",count:14,width:12,angle:0,patternSleeves:true,sleeve:"#cd0333",cuff:true,cuffColor:"#121014",collar:"crew",collarColor:"#121014",outline:"#4a0610",logos:NOLOGO}],
-  ["Andorra",{base:"#d40f22",pattern:"pinstripes",p1:"#b3061a",count:8,sleeve:"#d40f22",shStripes:true,shColor:"#1d3f9a",cuff:true,cuffColor:"#1d3f9a",cuffStripe:true,cuffStripeColor:"#f2c21b",collar:"crew",collarColor:"#1d3f9a",collarStripe:true,collarStripeColor:"#f2c21b",outline:"#4a0610",makerLogo:"adidas",makerColor:"#f2c21b",logos:NOLOGO}],
-  ["Armenia",{makerLogo:"macron",makerColor:"#e3c7a8",base:"#9a2a30",pattern:"raglan",p1:"#9a2a30",twoTone:true,p2:"#e3c7a8",mottle:"blotch",mottleColor:"#6a1b21",mottleStrength:45,mottleSleeves:true,mottleSeed:19,sleeve:"#9a2a30",cuff:true,cuffColor:"#9a2a30",cuffStripe:true,cuffStripeColor:"#e3c7a8",collar:"v",collarColor:"#e3c7a8",outline:"#3e0b10",logos:NOLOGO}],
-  ["Azerbaijan",{base:"#3179a0",pattern:"pinstripes",p1:"#4a8fb4",count:10,sleeve:"#2b5878",cuff:false,collar:"crew",collarColor:"#1f3550",outline:"#0f2c40",makerLogo:"puma",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Belarus",{base:"#7a0f15",pattern:"plain",mottle:"blotch",mottleColor:"#4a0609",mottleStrength:60,mottleScale:120,mottleSleeves:true,mottleSeed:37,sleeve:"#7a0f15",shStripes:true,shColor:"#d4e04a",cuff:false,collar:"v",collarColor:"#6a0c12",collarStripe:true,collarStripeColor:"#d4e04a",outline:"#2e0406",makerLogo:"adidas",makerColor:"#d4e04a",logos:NOLOGO}],
-  ["Bulgaria",{makerLogo:"macron",makerColor:"#a80f1c",base:"#f2f2f2",pattern:"sides",p1:"#17694d",width:8,mottle:"lattice",mottleColor:"#dcdcdc",mottleStrength:25,mottleScale:180,sleeve:"#f2f2f2",cuff:true,cuffColor:"#17694d",cuffStripe:true,cuffStripeColor:"#c8102e",collar:"polo",collarColor:"#c8102e",outline:"#6a6a6a",logos:NOLOGO}],
-  ["Cyprus",{base:"#0b3b8a",pattern:"hoops",p1:"#062a6c",count:9,width:40,patternSleeves:true,sleeve:"#0b3b8a",shStripes:true,shColor:"#c9a24a",cuff:true,cuffColor:"#0a1a40",collar:"crew",collarColor:"#0a1a40",outline:"#041330",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Denmark",{makerPos:"C",makerSize:9,makerLogo:"hummel",makerColor:"#ffffff",base:"#bf102b",pattern:"raglan",p1:"#bf102b",twoTone:true,p2:"#ffffff",sleeve:"#bf102b",cuff:true,cuffColor:"#bf102b",cuffStripe:true,cuffStripeColor:"#ffffff",collar:"v",collarColor:"#ffffff",collarStripe:true,collarStripeColor:"#bf102b",outline:"#4a0610",logos:NOLOGO}],
-  ["Estonia",{base:"#224492",pattern:"zigzag",p1:"#4a68b0",count:7,width:28,patternSleeves:true,sleeve:"#224492",cuff:false,collar:"crew",collarColor:"#f6f6f6",outline:"#0c1c40",makerLogo:"nike",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Faroe Islands",{base:"#f2f2f2",pattern:"chevron",p1:"#274a7d",twoTone:true,p2:"#d6283a",width:30,sleeve:"#f2f2f2",shStripes:true,shColor:"#274a7d",cuff:false,collar:"v",collarColor:"#d6283a",outline:"#5a5e6a",makerLogo:"adidas",makerColor:"#274a7d",logos:NOLOGO}],
-  ["Finland",{base:"#f0f0ee",pattern:"shoulders",p1:"#1f5fbf",width:40,patternSleeves:true,sleeve:"#f0f0ee",cuff:false,collar:"crew",collarColor:"#f0f0ee",outline:"#6a6e78",makerLogo:"nike",makerColor:"#1f5fbf",logos:NOLOGO}],
-  ["Georgia",{makerLogo:"macron",makerColor:"#1c1c1d",base:"#ececec",pattern:"panel",p1:"#be0330",twoTone:true,p2:"#1c1c1d",width:30,pos:4,gap:16,sleeve:"#ececec",cuff:true,cuffColor:"#1c1c1d",cuffStripe:true,cuffStripeColor:"#be0330",collar:"polo",collarColor:"#1c1c1d",outline:"#5a5a5e",logos:NOLOGO}],
-  ["Greece",{base:"#f2f2f4",pattern:"plain",sleeve:"#f2f2f4",shStripes:true,shColor:"#1f5fbf",cuff:true,cuffColor:"#1f5fbf",cuffStripe:true,cuffStripeColor:"#ffffff",collar:"v",collarColor:"#1f5fbf",collarStripe:true,collarStripeColor:"#ffffff",outline:"#5a6070",makerLogo:"adidas",makerColor:"#1f5fbf",logos:NOLOGO}],
-  ["Hungary",{base:"#a7031f",pattern:"plain",sleeve:"#a7031f",shStripes:true,shColor:"#ffffff",cuff:true,cuffColor:"#ffffff",cuffStripe:true,cuffStripeColor:"#2a7a3a",collar:"crew",collarColor:"#a7031f",outline:"#3e020b",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Iceland",{base:"#018ad3",pattern:"sides",p1:"#0a3f78",width:8,sleeve:"#018ad3",cuff:false,collar:"crew",collarColor:"#0a3f78",outline:"#033456",makerLogo:"puma",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Israel",{base:"#e6ebfb",pattern:"sides",p1:"#6d9be0",width:6,mottle:"lattice",mottleColor:"#b4c2ec",mottleStrength:35,mottleScale:150,mottleSleeves:true,sleeve:"#e6ebfb",cuff:true,cuffColor:"#1d2a5c",cuffStripe:true,cuffStripeColor:"#7fb0e8",collar:"crew",collarColor:"#1d2a5c",collarStripe:true,collarStripeColor:"#7fb0e8",outline:"#5a6080",makerLogo:"reebok",makerColor:"#1d2a5c",logos:NOLOGO}],
-  ["Italy",{base:"#2a86ec",pattern:"plain",mottle:"leaves",mottleColor:"#0b5ad0",mottleStrength:80,mottleScale:90,mottleSleeves:true,sleeve:"#197ae5",shStripes:true,shColor:"#f0ead6",cuff:true,cuffColor:"#13285c",cuffStripe:true,cuffStripeColor:"#f0ead6",collar:"v",collarColor:"#13285c",collarStripe:true,collarStripeColor:"#f0ead6",outline:"#082a5a",makerLogo:"adidas",makerColor:"#d4af5a",logos:NOLOGO}],
-  ["Kazakhstan",{base:"#f0d00a",pattern:"plain",sleeve:"#f0d00a",shStripes:true,shColor:"#1f5fbf",cuff:false,collar:"v",collarColor:"#1f5fbf",outline:"#5c5004",makerLogo:"adidas",makerColor:"#1f5fbf",logos:NOLOGO}],
-  // European home shirts (batch 2)
-  ["Latvia",{base:"#8a2c3c",pattern:"raglan",p1:"#8a2c3c",twoTone:true,p2:"#f2731f",sleeve:"#8a2c3c",shStripes:true,shColor:"#f2731f",cuff:false,collar:"crew",collarColor:"#8a2c3c",collarStripe:true,collarStripeColor:"#f2731f",outline:"#350f16",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Liechtenstein",{base:"#1e40a8",pattern:"pinstripes",p1:"#3a5cc0",count:8,sleeve:"#1e40a8",shStripes:true,shColor:"#ffffff",cuff:true,cuffColor:"#e8322a",collar:"crew",collarColor:"#e8322a",outline:"#0a1a4a",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Lithuania",{makerLogo:"hummel",makerColor:"#0d7a5a",base:"#f2d000",pattern:"sides",p1:"#e2bd00",width:8,sleeve:"#f2d000",shStripes:true,shColor:"#0d7a5a",cuff:true,cuffColor:"#e6c300",collar:"v",collarColor:"#0d7a5a",outline:"#5c5004",logos:NOLOGO}],
-  ["Luxembourg",{makerSize:11,makerLogo:"jako",makerColor:"#ffffff",base:"#e0141f",pattern:"plain",mottle:"blotch",mottleColor:"#9a0a12",mottleStrength:55,mottleScale:200,mottleSeed:52,sleeve:"#e0141f",cuff:true,cuffColor:"#ffffff",cuffStripe:true,cuffStripeColor:"#2a8ad8",collar:"v",collarColor:"#ffffff",outline:"#4a0608",logos:NOLOGO}],
-  ["Malta",{base:"#e00510",pattern:"plain",sleeve:"#e00510",shStripes:true,shColor:"#ffffff",cuff:false,collar:"v",collarColor:"#e00510",outline:"#4a0206",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Moldova",{makerPos:"C",makerSize:11,makerLogo:"jako",makerColor:"#ffffff",base:"#2a52a8",pattern:"plain",mottle:"lattice",mottleColor:"#1f4495",mottleStrength:55,mottleScale:200,sleeve:"#1f4495",cuff:true,cuffColor:"#ffffff",cuffStripe:true,cuffStripeColor:"#2a52a8",collar:"v",collarColor:"#ffffff",outline:"#0c1c46",logos:NOLOGO}],
-  ["Montenegro",{makerPos:"C",makerSize:11,makerLogo:"legea",makerColor:"#f0c020",base:"#c41e1c",pattern:"stripes",p1:"#f0c020",count:2,width:7,center:false,sleeve:"#c41e1c",cuff:false,collar:"crew",collarColor:"#f0c020",outline:"#4a0a0a",logos:NOLOGO}],
-  ["Northern Ireland",{base:"#0a7f94",pattern:"halves",p1:"#12a5a3",patternSleeves:true,sleeve:"#0a7f94",shStripes:true,shColor:"#ffffff",cuff:false,collar:"v",collarColor:"#0a7f94",outline:"#03343c",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["North Macedonia",{base:"#d91018",pattern:"plain",mottle:"streaks",mottleColor:"#f4a92e",mottleStrength:85,mottleScale:110,mottleSleeves:false,mottleSeed:14,sleeve:"#d91018",shStripes:true,shColor:"#f6c21c",cuff:false,collar:"v",collarColor:"#f6c21c",outline:"#4a0608",makerLogo:"adidas",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Poland",{base:"#f4f3f6",pattern:"sides",p1:"#d2142c",width:8,sleeve:"#e0e6ee",cuff:false,collar:"v",collarColor:"#d2142c",outline:"#6a6a72",makerLogo:"nike",makerColor:"#d2142c",logos:NOLOGO}],
-  ["Republic of Ireland",{makerSize:10,makerLogo:"castore",makerColor:"#ffffff",base:"#0a5a2e",pattern:"raglan",p1:"#0a5a2e",twoTone:true,p2:"#f0922a",sleeve:"#0a5a2e",cuff:true,cuffColor:"#ffffff",cuffStripe:true,cuffStripeColor:"#f0922a",collar:"v",collarColor:"#ffffff",collarStripe:true,collarStripeColor:"#f0922a",outline:"#032412",logos:NOLOGO}],
-  ["Romania",{makerPos:"C",makerSize:11,makerLogo:"joma",makerColor:"#1f3fa8",base:"#f8d200",pattern:"sides",p1:"#1f4fb0",width:3,sleeve:"#f8d200",cuff:true,cuffColor:"#f8d200",cuffStripe:true,cuffStripeColor:"#1f4fb0",collar:"round",collarColor:"#f8d200",outline:"#5c5004",logos:NOLOGO}],
-  ["San Marino",{base:"#f6f7f8",pattern:"plain",mottle:"zebra",mottleColor:"#9fcfe2",mottleStrength:75,mottleScale:150,mottleSeed:41,sleeve:"#f6f7f8",shStripes:true,shColor:"#1d2a5c",cuff:true,cuffColor:"#9fcfe2",cuffStripe:true,cuffStripeColor:"#1d2a5c",collar:"crew",collarColor:"#9fcfe2",collarStripe:true,collarStripeColor:"#1d2a5c",outline:"#5a6a78",makerLogo:"adidas",makerColor:"#1d2a5c",logos:NOLOGO}],
-  ["Serbia",{base:"#0b55b8",pattern:"cross",p1:"#08419c",width:30,pos:0,sleeve:"#0a49a6",cuff:false,collar:"crew",collarColor:"#0a3c90",outline:"#04204a",makerLogo:"capelli",makerColor:"#ffffff",logos:NOLOGO}],
-  ["Slovakia",{makerLogo:"macron",makerColor:"#ffffff",base:"#0a4690",pattern:"plain",mottle:"zebra",mottleColor:"#2a86d4",mottleStrength:60,mottleScale:120,mottleSleeves:true,mottleSeed:66,sleeve:"#0a4690",cuff:true,cuffColor:"#0a2a60",collar:"crew",collarColor:"#0a2a60",outline:"#041c3c",logos:NOLOGO}],
-  ["Slovenia",{base:"#f4f4f6",pattern:"peaks",p1:"#2a62c4",twoTone:true,p2:"#d8263a",count:2,width:55,angle:52,pos:8,sleeve:"#f4f4f6",cuff:true,cuffColor:"#2a62c4",collar:"crew",collarColor:"#2a62c4",outline:"#5a6070",makerLogo:"nike",makerColor:"#2a62c4",logos:NOLOGO}],
-  ["Ukraine",{base:"#f2da4e",pattern:"plain",mottle:"lattice",mottleColor:"#e2b636",mottleStrength:55,mottleScale:230,sleeve:"#f4e46a",shStripes:true,shColor:"#1f5fc8",cuff:true,cuffColor:"#1f5fc8",collar:"crew",collarColor:"#1f5fc8",outline:"#5c5010",makerLogo:"adidas",makerColor:"#1f5fc8",logos:NOLOGO}],
-  ["Wales",{base:"#e3242a",pattern:"checkers",p1:"#cf1820",count:7,makerLogo:"sudu",makerColor:"#ffffff",makerSize:10,mottle:"lattice",mottleColor:"#f26868",mottleStrength:35,mottleScale:230,mottleSleeves:true,patternSleeves:true,sleeve:"#e3242a",cuff:true,cuffColor:"#ffffff",collar:"v",collarColor:"#ffffff",outline:"#4a0608",logos:NOLOGO}],
-  ["Teal fade",{base:"#0f6e74",pattern:"fade",p1:"#0a2a2c",sleeve:"#0f6e74",patternSleeves:true,cuff:false,collarColor:"#ffffff",collar:"crew"}]
-].map(([n,o])=>{const k=Object.assign(clone(DEFAULT),clone(o));k.logos=k.logos.map(L=>Object.assign({invert:false,recolor:false,tint:"#ffffff"},L));return [n,k];});
-
-let S = clone(DEFAULT);
 let uid = 0;
 
 /* ---------- geometry ---------- */
 const NECK = {round:"Q50,20 31,7", crew:"Q50,14 31,7", v:"L50,21 L31,7", polo:"Q50,15 31,7"};
-const SPOTS = {L:[38,27],C:[50,29],R:[62,27],M:[50,52],B:[50,58]};
+// T: top of the shirt between the sleeves, where a name sits on the back
+const SPOTS = {L:[38,27],C:[50,29],R:[62,27],M:[50,52],B:[50,58],T:[50,22]};
 /* Shirt shape. The sliders are percentages of the default shape; the factors below
    convert them to the original (v1) geometry, which patterns and badge spots are drawn in. */
 const SHAPE_BASE={bodyL:1.1,bodyW:1.2,sleeveL:1.33,sleeveW:1.75,cuffW:1};
@@ -449,7 +75,7 @@ function geom(s){
   const pad=1.6+(+s.outlineW||0)/2;
   const bx0=minX-pad, bx1=100-minX+pad, by0=4.5, by1=maxY+pad;
   const side=Math.max(bx1-bx0,by1-by0), cxv=(bx0+bx1)/2, cyv=(by0+by1)/2;
-  return {body:body(s.collar),sleeves:sleeveL+" "+sleeveR,cuffs:cuffL+" "+cuffR,
+  return {hw,body:body(s.collar),sleeves:sleeveL+" "+sleeveR,cuffs:cuffL+" "+cuffR,
     cuffLine:`M${P(mT)} L${P(mB)} M${P(M(mT))} L${P(M(mB))}`,cuffLineW:r2(cw*0.28),
     shoulderL:[[31,7],S,oT],shoulderR:[[69,7],M(S),M(oT)],
     viewBox:`${r2(cxv-side/2)} ${r2(cyv-side/2)} ${r2(side)} ${r2(side)}`,x0:minX,x1:100-minX,
@@ -464,7 +90,7 @@ const safeColor=(c,fb="#000000")=>{const m=String(c??"").trim().match(HEX);retur
 const num=(v,fb=0)=>{const n=+v;return Number.isFinite(n)?n:fb;};
 const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
 const MAX_UPLOAD=5*1024*1024;
-const COLOR_KEYS=["base","outline","p1","p2","p3","shColor","sleeve","cuffColor","cuffStripeColor","collarColor","collarStripeColor","starColor","numColor","numStroke","mottleColor","makerColor"];
+const COLOR_KEYS=["base","outline","p1","p2","p3","shColor","sleeve","cuffColor","cuffStripeColor","collarColor","collarStripeColor","starColor","numColor","numStroke","mottleColor","makerColor","textColor"];
 const PATTERN_IDS=new Set(PATTERNS.map(p=>p[0]));
 const COLLAR_IDS=new Set(["round","crew","v","polo"]);
 const SPOT_IDS=new Set(["L","C","R","M","B"]);
@@ -751,6 +377,7 @@ function expandUses(root,doc,SVG_NS,XLINK_NS){
 }
 
 function prepLogo(text){
+  if(typeof DOMParser==="undefined") return null; // badge reading needs a browser
   if(typeof text!=="string"||!text||text.length>500000) return null;
   const doc=new DOMParser().parseFromString(text,"image/svg+xml");
   const root=doc.documentElement;
@@ -865,7 +492,8 @@ function render(s, size){
     const sz=num(s.starSize,4), step=sz+num(s.starGap,0);
     let ax,ay;
     if(s.starPos==="crest"){const L0=logos[0], has=L0&&logoData(L0.src);
-      const [cx,cy]=G.spot(has&&SPOT_IDS.has(L0.pos)?L0.pos:"R"); const lsz=has?clamp(num(L0.size,12),4,40):12;
+      const [cx,cy]=G.spot(has&&SPOT_IDS.has(L0.pos)?L0.pos:"R"); const numThere=!has&&String(s.number??"").trim()&&s.numPos==="R";   // a number in the crest spot: stars clear its top
+      const lsz=has?clamp(num(L0.size,12),4,40):numThere?Math.max(12,numSize*0.75):12;
       ax=cx+(has?num(L0.dx,0):0); ay=cy-lsz/2+(has?num(L0.dy,0):0)-sz*0.75;}
     else{[ax,ay]=G.spot(STAR_POS.has(s.starPos)?s.starPos:"L");ay-=sz*0.2;}
     ay+=num(s.starDy,0);
@@ -882,94 +510,15 @@ function render(s, size){
   // number
   if(String(s.number??"").trim()){const [cx,cy]=G.spot(SPOT_IDS.has(s.numPos)?s.numPos:"L");
     o+=`<text x="${r2(cx)}" y="${r2(cy)}" text-anchor="middle" dominant-baseline="central" font-family="'Barlow Condensed','Arial Narrow',Arial,sans-serif" font-weight="700" font-size="${r2(numSize)}" fill="${numColor}"${s.numEdge?` stroke="${numStroke}" stroke-width="${r2(numSize/18)}" paint-order="stroke"`:""}>${esc(String(s.number).trim().slice(0,8))}</text>`;}
+  // text across the top of the shirt (a name on the back); the number's edge setting applies to it too
+  const text=String(s.text??"").trim().slice(0,12);
+  if(text){const [tx,ty]=G.spot("T"), tSize=clamp(num(s.textSize,7),3,14), maxW=G.hw*2*0.78, est=text.length*tSize*0.55;
+    o+=`<text x="${r2(tx)}" y="${r2(ty+num(s.textDy,0))}" text-anchor="middle" dominant-baseline="central" font-family="'Barlow Condensed','Arial Narrow',Arial,sans-serif" font-weight="700" font-size="${r2(tSize)}" fill="${safeColor(s.textColor,DEFAULT.textColor)}"${s.numEdge?` stroke="${numStroke}" stroke-width="${r2(tSize/18)}" paint-order="stroke"`:""}${est>maxW?` textLength="${r2(maxW)}" lengthAdjust="spacingAndGlyphs"`:""}>${esc(text)}</text>`;}
   return o+"</svg>";
 }
 
-/* ---------- UI ---------- */
-const $=q=>document.querySelector(q), $$=q=>[...document.querySelectorAll(q)];
-const getPath=(o,p)=>p.split(".").reduce((a,k)=>a?.[k],o);
-function setPath(o,p,v){const ks=p.split(".");let t=o;ks.slice(0,-1).forEach(k=>t=t[k]);t[ks.at(-1)]=v;}
 
-function bindAll(){
-  $$("[data-k]").forEach(el=>{
-    if(el.dataset.bound)return; el.dataset.bound=1;
-    el.addEventListener("input",()=>{
-      let v=el.type==="checkbox"?el.checked:(el.type==="range"?parseFloat(el.value):el.value);
-      setPath(S,el.dataset.k,v); update();
-    });
-  });
-  $$("[data-hex]").forEach(el=>{
-    if(el.dataset.bound)return; el.dataset.bound=1;
-    el.addEventListener("change",()=>{const m=el.value.trim().match(HEX);if(m){setPath(S,el.dataset.hex,"#"+m[1].toLowerCase());update();}else syncUI();});
-  });
-}
-function syncUI(){
-  $$("[data-k]").forEach(el=>{const v=getPath(S,el.dataset.k);if(v===undefined)return;
-    if(el.type==="checkbox")el.checked=!!v;else if(document.activeElement!==el||el.type!=="text")el.value=v;
-    if(el.type==="range"){const out=el.parentElement.querySelector("output");if(out)out.textContent=v+(el.dataset.unit||"");}});
-  $$("[data-hex]").forEach(el=>{if(document.activeElement!==el)el.value=getPath(S,el.dataset.hex)||"";});
-  const show=(PATTERNS.find(p=>p[0]===S.pattern)||PATTERNS[0])[2];
-  $$("[data-show]").forEach(r=>{const k=r.dataset.show;r.hidden=k==="color2"?!(show.includes("color2")||(show.includes("twoTone")&&S.twoTone))
-      :k==="color3"?!(show.includes("color3")&&(!show.includes("twoTone")||S.twoTone)):!show.includes(k);});
-  $("#twoToneLabel").textContent=TWO_TONE_LABEL[S.pattern]||"Alternate with a second colour";
-  $("#gapLabel").textContent=GAP_LABEL[S.pattern]||"Centre gap";
-  $("#sleeveRow").hidden=S.patternSleeves; $("#cuffRow").hidden=!S.cuff; $("#cuffWidRow").hidden=!S.cuff; $("#cuffStripeRow").hidden=!S.cuff; $("#shRow").hidden=!S.shStripes;
-  $$("[data-star]").forEach(r=>r.hidden=!(+S.stars>0));
-  $$("[data-mottle]").forEach(r=>r.hidden=S.mottle==="off");
-  $$("[data-maker]").forEach(r=>r.hidden=!MAKERS[S.makerLogo]);
-  $("#mottleSeedRow").hidden=!(S.mottle==="speckle"||S.mottle==="blotch"||S.mottle==="zebra"||S.mottle==="streaks");
-  $("#mottleSeedNote").textContent=`#${S.mottleSeed}`;
-  $$(".pat").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===S.pattern));
-  S.logos.forEach((L,i)=>{const n=$(`#fname${i}`);if(n)n.textContent=L.src?(L.name||"Badge"):"No file";$(`#slotbody${i}`).hidden=!L.src;$(`#rm${i}`).hidden=!L.src;
-    const d=logoData(L.src), two=!!(d&&d.colors.length===2), one=!!(d&&d.colors.length===1);$(`#invRow${i}`).hidden=!two;
-    $(`#tintRow${i}`).hidden=!one;$(`#tintPick${i}`).hidden=!L.recolor;
-    $(`#invSw${i}`).innerHTML=two?(L.invert?[...d.colors].reverse():d.colors).map(c=>`<i style="background:${c}"></i>`).join(""):"";});
-}
-
-function buildPatterns(){
-  $("#patterns").innerHTML=PATTERNS.map(([k,n])=>`<button type="button" class="pat" data-p="${k}" aria-pressed="false"><span data-mini="${k}"></span>${n}</button>`).join("");
-  $$(".pat").forEach(b=>b.addEventListener("click",()=>{S.pattern=b.dataset.p;update();}));
-}
-function drawPatternMinis(){
-  $$("[data-mini]").forEach(sp=>{const s=Object.assign(clone(S),{pattern:sp.dataset.mini,logos:[],number:"",shading:20,outlineW:1.6});sp.innerHTML=render(s);});
-}
-
-function buildSlots(){
-  $("#slots").innerHTML=S.logos.map((L,i)=>`
-    <div class="slot">
-      <div class="slot-head"><b>${i===0?"Crest":"Second badge"}</b><span class="fname" id="fname${i}"></span>
-        <div class="btns"><label class="btn small file">Upload SVG<input type="file" accept=".svg,image/svg+xml" id="file${i}"></label>
-        ${i===0?`<button class="btn small" type="button" id="sample${i}">Example</button>`:""}
-        <button class="btn small" type="button" id="rm${i}">Remove</button></div></div>
-      <div id="slotbody${i}">
-        <div class="row"><label for="s-pos${i}">Position</label><select id="s-pos${i}" data-k="logos.${i}.pos"><option value="L">Left chest (as viewed)</option><option value="C">Centre chest</option><option value="R">Right chest (as viewed)</option><option value="M">Centre front</option></select></div>
-        <div class="row" id="invRow${i}"><span class="lbl">Colours</span><label class="check"><input type="checkbox" id="k-inv${i}" data-k="logos.${i}.invert"> Swap the two colours <span class="inv-sw" id="invSw${i}"></span></label></div>
-        <div class="row" id="tintRow${i}"><span class="lbl">Colour</span><div class="color"><label class="check"><input type="checkbox" id="k-rec${i}" data-k="logos.${i}.recolor"> Recolour</label><span class="color" id="tintPick${i}"><input type="color" id="c-tint${i}" data-k="logos.${i}.tint" aria-label="Badge colour"><input type="text" class="hex" id="h-tint${i}" data-hex="logos.${i}.tint" aria-label="Badge colour hex"></span></div></div>
-        <div class="row"><label for="r-size${i}">Size</label><div class="range"><input type="range" id="r-size${i}" min="4" max="40" step="0.5" data-k="logos.${i}.size"><output></output></div></div>
-        <div class="row"><label for="r-dx${i}">Nudge across</label><div class="range"><input type="range" id="r-dx${i}" min="-12" max="12" step="0.5" data-k="logos.${i}.dx"><output></output></div></div>
-        <div class="row"><label for="r-dy${i}">Nudge down</label><div class="range"><input type="range" id="r-dy${i}" min="-12" max="20" step="0.5" data-k="logos.${i}.dy"><output></output></div></div>
-      </div>
-    </div>`).join("");
-  S.logos.forEach((L,i)=>{
-    $(`#file${i}`).addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;e.target.value="";
-      if(f.size>MAX_UPLOAD){toast("That file is over 5 MB. Try a smaller SVG.");return;}
-      const fr=new FileReader();
-      fr.onload=()=>{const txt=String(fr.result);if(!prepLogo(txt)){toast("That file isn't a readable SVG. Try exporting it again as plain SVG.");return;}
-        S.logos[i].src=txt;S.logos[i].name=f.name;S.logos[i].invert=false;S.logos[i].recolor=false;update();toast(`${f.name} added`);};fr.readAsText(f);});
-    const sb=$(`#sample${i}`); if(sb) sb.addEventListener("click",()=>{S.logos[i].src=SAMPLE_CREST;S.logos[i].name="Example crest";S.logos[i].invert=false;update();});
-    $(`#rm${i}`).addEventListener("click",()=>{S.logos[i].src="";S.logos[i].name="";update();});
-  });
-  bindAll();
-}
-
-function strip(el,list,onPick,onDel){
-  el.innerHTML="";
-  list.forEach(([name,kit],i)=>{const b=document.createElement("div");b.className="thumb";b.tabIndex=0;b.setAttribute("role","button");
-    b.innerHTML=render(kit)+`<span>${esc(name)}</span>`+(onDel?`<button class="x" type="button" aria-label="Delete ${esc(name)}">×</button>`:"");
-    b.addEventListener("click",e=>{if(e.target.classList.contains("x")){onDel(i);return;}onPick(kit);});
-    b.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onPick(kit);}});
-    el.appendChild(b);});
-}
+/* ---------- kit validation ---------- */
 function sanitizeKit(raw){
   const d=clone(DEFAULT), out=clone(DEFAULT);
   if(!raw||typeof raw!=="object")return out;
@@ -1008,6 +557,9 @@ function sanitizeKit(raw){
   out.starLayout=STAR_LAYOUT.has(raw.starLayout)?raw.starLayout:d.starLayout;
   out.numPos=SPOT_IDS.has(raw.numPos)?raw.numPos:d.numPos;
   out.number=String(raw.number??d.number).slice(0,8);
+  out.text=String(raw.text??d.text).slice(0,12);
+  out.textSize=clamp(num(raw.textSize,d.textSize),3,14);
+  out.textDy=clamp(num(raw.textDy,d.textDy),-10,30);
   const logos=Array.isArray(raw.logos)?raw.logos:[];
   out.logos=[0,1].map(i=>{
     const L=logos[i]&&typeof logos[i]==="object"?logos[i]:{};
@@ -1018,339 +570,58 @@ function sanitizeKit(raw){
   });
   return out;
 }
-function loadKit(k){S=sanitizeKit(k);update();}
 
-/* saved kits (per-browser convenience) */
-const KEY="kitroom.saved.v1";
-function readSaved(){try{const l=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(l)?l:[];}catch(e){return [];}}
-function writeSaved(l){try{localStorage.setItem(KEY,JSON.stringify(l));return true;}catch(e){return false;}}
-function drawSaved(){const l=readSaved().map(x=>({name:String(x?.name||"Kit").slice(0,80),kit:sanitizeKit(x?.kit)}));$("#savedEmpty").hidden=l.length>0;
-  strip($("#saved"),l.map(x=>[x.name,x.kit]),loadKit,i=>{const a=readSaved();a.splice(i,1);writeSaved(a);drawSaved();});}
-$("#saveKit").addEventListener("click",()=>{const l=readSaved();const name=(S.number?`#${S.number} `:"")+(PATTERNS.find(p=>p[0]===S.pattern)||[0,"Kit"])[1];
-  l.unshift({name:`${name} ${l.length+1}`,kit:clone(S)});
-  if(writeSaved(l.slice(0,24))){drawSaved();toast("Kit saved in this browser");}else toast("This browser blocks saving here. Use Copy config instead.");});
-
-/* random */
-const PAL=["#ffffff","#111418","#d7262f","#1f4fb8","#74acdf","#1f9a4a","#f2c230","#ff7a1a","#7a1f3d","#0f6e74","#5b2a86","#e85d9a","#c9a24a","#0b2a5b","#8a1c1c","#2e7d32"];
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-$("#randomize").addEventListener("click",()=>{const base=pick(PAL);let p1=pick(PAL);while(p1===base)p1=pick(PAL);let p2=pick(PAL);
-  const pat=pick(PATTERNS.slice(1))[0];
-  Object.assign(S,{base,p1,p2,pattern:pat,twoTone:Math.random()<.3,count:3+Math.floor(Math.random()*6),width:30+Math.floor(Math.random()*40),
-    angle:[-35,-20,0,20,35][Math.floor(Math.random()*5)],patternSleeves:Math.random()<.4,sleeve:pick([base,p1]),cuff:Math.random()<.7,cuffColor:pick([p1,base,p2]),
-    collar:pick(["round","crew","v","polo"]),collarColor:pick([p1,p2])});update();});
-
-/* export */
+/* ---------- export ---------- */
 // Kit settings travel inside exported files as base64 JSON in <metadata>, so a downloaded shirt can be reopened and edited.
 const CFG_TAG="kitroom-config";
 function b64enc(t){const b=new TextEncoder().encode(t);let s="";for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
 function b64dec(t){const s=atob(t);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return new TextDecoder().decode(b);}
-function exportSVG(){
-  const svg=render(S,$("#s-exportSize").value);
-  if(!$("#k-embed").checked)return svg;
-  const meta=`<metadata id="${CFG_TAG}">${b64enc(JSON.stringify(S))}</metadata>`;
-  return svg.replace(/^(<svg[^>]*>)/,"$1"+meta);
-}
-// Reads the settings back out of a shirt SVG; null when the file has none.
-function kitFromSvg(text){
-  let d;try{d=new DOMParser().parseFromString(text,"image/svg+xml");}catch(e){return null;}
-  if(!d||d.getElementsByTagName("parsererror").length)return null;
-  const m=d.getElementById(CFG_TAG)||[...d.getElementsByTagName("metadata")].find(x=>x.getAttribute("id")===CFG_TAG);
-  if(!m)return null;
-  try{const k=JSON.parse(b64dec(m.textContent.replace(/\s+/g,"")));return k&&typeof k==="object"&&!Array.isArray(k)?k:null;}catch(e){return null;}
-}
-function openShirtFile(f){
-  if(!f)return;
-  if(f.size>MAX_UPLOAD*3){toast("That file is too large to be a Kit Room shirt.");return;}
-  const fr=new FileReader();
-  fr.onload=()=>{const k=kitFromSvg(String(fr.result));
-    if(!k){toast("This SVG has no Kit Room settings inside. Only shirts downloaded with \u201cReopen later\u201d ticked can be opened.");return;}
-    loadKit(k);$("#t-fname").value=f.name;toast(`${f.name} opened`);};
-  fr.readAsText(f);
-}
-// Returns an error message when the SVG would not open as a standalone file, otherwise "".
-function svgProblem(t){try{const d=new DOMParser().parseFromString(t,"image/svg+xml");const e=d.getElementsByTagName("parsererror")[0];
-  return e?(e.textContent||"invalid SVG").replace(/\s+/g," ").trim().slice(0,140):"";}catch(e){return "invalid SVG";}}
-async function copy(text,ta,msg){try{await navigator.clipboard.writeText(text);toast(msg);}catch(e){if(ta){ta.focus();ta.select();}toast("Copy was blocked. The code is selected, so press Ctrl+C or ⌘C.");}}
-$("#copySvg").addEventListener("click",()=>{const t=exportSVG();const bad=svgProblem(t);if(bad){toast("This SVG would not open as a file. Try removing or re-saving the badge. ("+bad+")");return;}$("#svgOut").value=t;copy(t,$("#svgOut"),"SVG copied");});
-// Inside the Claude viewer, saves go through the downloads capability.
-// Opened as a plain HTML file (no window.claude), the browser downloads directly.
-const inViewer=!!(window.claude&&typeof window.claude.use==="function");
-let downloads=null;
-if(inViewer){(async()=>{try{downloads=await window.claude.use("downloads");}catch(e){downloads=null;}
-  if(!downloads){$("#downloadSvg").hidden=true;$("#copySvg").classList.add("primary");}})();}
-function fileName(){let n=$("#t-fname").value.trim().replace(/[\\/:*?"<>|]+/g,"-")||"kit";if(!/\.svg$/i.test(n))n=n.replace(/\.[a-z0-9]+$/i,"")+".svg";return n;}
-function browserDownload(name,text){const url=URL.createObjectURL(new Blob([text],{type:"image/svg+xml"}));
-  const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);}
-$("#downloadSvg").addEventListener("click",async()=>{const n=fileName();
-  const svg=exportSVG(), bad=svgProblem(svg);
-  if(bad){toast("This SVG would not open as a file. Try removing or re-saving the badge. ("+bad+")");return;}
-  const data='<?xml version="1.0" encoding="UTF-8"?>\n'+svg+"\n";
-  if(!inViewer){browserDownload(n,data);toast(`${n} downloaded`);return;}
-  if(!downloads){toast("Downloads are still loading. Try again in a moment.");return;}
-  try{await downloads.save({filename:n,data});toast(`${n} saved`);}
-  catch(e){const c=e&&e.code;
-    if(c==="declined")return;
-    if(c==="rate_limited")toast("A save prompt is already open.");
-    else{toast("Downloads aren't available here. Use Copy SVG instead.");$("#downloadSvg").hidden=true;$("#copySvg").classList.add("primary");}}});
-$("#copyCfg").addEventListener("click",()=>{const t=JSON.stringify(S);$("#svgOut").value=t;copy(t,$("#svgOut"),"Config copied");});
-$("#s-exportSize").addEventListener("change",update);
-$("#k-embed").addEventListener("change",update);
-$("#openSvg").addEventListener("change",e=>{const f=e.target.files[0];e.target.value="";openShirtFile(f);});
-{const st=document.querySelector(".stage");
-  st.addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files")){e.preventDefault();st.classList.add("drop");}});
-  st.addEventListener("dragleave",()=>st.classList.remove("drop"));
-  st.addEventListener("drop",e=>{e.preventDefault();st.classList.remove("drop");const f=e.dataTransfer.files[0];if(f)openShirtFile(f);});}
-$("#loadCfg").addEventListener("click",()=>{try{const k=JSON.parse($("#cfgIn").value);if(!k||typeof k!=="object"||Array.isArray(k))throw 0;loadKit(k);toast("Config loaded");}catch(e){toast("That isn't valid kit config JSON. Copy it again with Copy config.");}});
+const PAL=["#ffffff","#111418","#d7262f","#1f4fb8","#74acdf","#1f9a4a","#f2c230","#ff7a1a","#7a1f3d","#0f6e74","#5b2a86","#e85d9a","#c9a24a","#0b2a5b","#8a1c1c","#2e7d32"];
 
-let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2400);}
-
-function update(){
-  syncUI();
-  $("#preview").innerHTML=render(S);
-  $("#sizes").innerHTML=`<div class="sz"><div class="box">${render(S,64)}</div>64px</div>`;
-  drawPatternMinis();
-  const out=exportSVG();$("#svgOut").value=out;$("#bytes").textContent=`${(new Blob([out]).size/1024).toFixed(1)} KB`;
+// Builds the SVG file for a kit. size: width/height attribute (omit for none). embed: put the settings inside so Open SVG can reload it.
+function toFile(kit,{size=128,embed=true}={}){
+  const svg=render(kit,size||"");
+  if(!embed)return svg;
+  return svg.replace(/^(<svg[^>]*>)/,`$1<metadata id="${CFG_TAG}">${b64enc(JSON.stringify(kit))}</metadata>`);
 }
 
-/* Kit Room image reader: takes RGBA pixels of a jersey icon and guesses kit settings. */
-function analyzeKit(img){
-  const {width:w,height:h,data:d}=img;
-  const idx=(x,y)=>(y*w+x)*4;
-  const rgb=(x,y)=>{const i=idx(x,y);return [d[i],d[i+1],d[i+2]];};
-  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
-  const hex=c=>"#"+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");
-  const lum=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
-
-  /* 1. foreground mask */
-  const fg=new Uint8Array(w*h);
-  let transparentEdge=0,edgeN=0;
-  for(let x=0;x<w;x++)for(const y of [0,h-1]){edgeN++;if(d[idx(x,y)+3]<128)transparentEdge++;}
-  for(let y=0;y<h;y++)for(const x of [0,w-1]){edgeN++;if(d[idx(x,y)+3]<128)transparentEdge++;}
-  if(transparentEdge/edgeN>0.5){
-    for(let i=0;i<w*h;i++)fg[i]=d[i*4+3]>=128?1:0;
-  }else{ // solid background: flood fill from the border with the corner colour
-    fg.fill(1);const bg=rgb(0,0),st=[];
-    const push=(x,y)=>{if(x<0||y<0||x>=w||y>=h)return;const k=y*w+x;if(!fg[k])return;if(dist(rgb(x,y),bg)>40)return;fg[k]=0;st.push(k);};
-    for(let x=0;x<w;x++){push(x,0);push(x,h-1);}for(let y=0;y<h;y++){push(0,y);push(w-1,y);}
-    while(st.length){const k=st.pop(),x=k%w,y=(k-x)/w;push(x+1,y);push(x-1,y);push(x,y+1);push(x,y-1);}
-  }
-  let x0=w,x1=-1,y0=h,y1=-1;
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(fg[y*w+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
-  if(x1<0)return null;
-  const W=x1-x0+1,H=y1-y0+1;
-  const isFg=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&fg[y*w+x]===1;
-  const depth=new Uint16Array(w*h); // distance (in px, 4-connected) from the shirt edge
-  {const q=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++){const k=y*w+x;if(!fg[k])continue;
-      if(!isFg(x+1,y)||!isFg(x-1,y)||!isFg(x,y+1)||!isFg(x,y-1)){depth[k]=1;q.push(k);}}
-    for(let qi=0;qi<q.length;qi++){const k=q[qi],x=k%w,y=(k-x)/w;
-      for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){if(!isFg(nx,ny))continue;const nk=ny*w+nx;if(!depth[nk]){depth[nk]=depth[k]+1;q.push(nk);}}}}
-  const inset=Math.max(2,Math.round(W/40));
-  const pts=(fx0,fx1,fy0,fy1,minDepth=inset)=>{const out=[];
-    for(let y=Math.floor(y0+fy0*H);y<=Math.min(y1,Math.ceil(y0+fy1*H));y++)
-      for(let x=Math.floor(x0+fx0*W);x<=Math.min(x1,Math.ceil(x0+fx1*W));x++)
-        if(isFg(x,y)&&depth[y*w+x]>minDepth)out.push([x,y]);return out;};
-
-  /* 2. colour clusters from the torso */
-  function cluster(colors,thr){
-    const buckets=new Map();
-    colors.forEach(c=>{const k=(c[0]>>4)<<8|(c[1]>>4)<<4|(c[2]>>4);const b=buckets.get(k);if(b){b.n++;b.s[0]+=c[0];b.s[1]+=c[1];b.s[2]+=c[2];}else buckets.set(k,{n:1,s:[...c]});});
-    const list=[...buckets.values()].map(b=>({n:b.n,c:b.s.map(v=>v/b.n)})).sort((a,b)=>b.n-a.n);
-    const cl=[];
-    list.forEach(b=>{const t=cl.find(k=>dist(k.c,b.c)<thr);if(t){const n=t.n+b.n;t.c=t.c.map((v,i)=>(v*t.n+b.c[i]*b.n)/n);t.n=n;}else cl.push({n:b.n,c:b.c});});
-    const tot=colors.length;cl.forEach(k=>k.share=k.n/tot);
-    return cl.sort((a,b)=>b.n-a.n);
-  }
-  const nearest=(c,cl)=>{let bi=0,bd=1e9;cl.forEach((k,i)=>{const dd=dist(c,k.c);if(dd<bd){bd=dd;bi=i;}});return bi;};
-
-  const torso=pts(0.24,0.76,0.3,0.92);
-  const tcl=cluster(torso.map(([x,y])=>rgb(x,y)),62).filter(k=>k.share>=0.02);
-  if(!tcl.length)return null;
-  // When two colours split the shirt about evenly, treat the lighter one as the ground.
-  let main=tcl.slice(0,3);
-  if(main.length>1&&main[1].share>0.38&&lum(main[1].c)>lum(main[0].c)+20)main=[main[1],main[0],...main.slice(2)];
-  // drop colours that are only anti-aliasing blends between two others
-  const onSegment=(c,a,b)=>{const ab=b.map((v,i)=>v-a[i]),ac=c.map((v,i)=>v-a[i]);const L=ab.reduce((s,v)=>s+v*v,0)||1;const t=Math.max(0,Math.min(1,ac.reduce((s,v,i)=>s+v*ab[i],0)/L));return dist(c,a.map((v,i)=>v+t*ab[i]));};
-  main=main.filter((k,i)=>i<2||onSegment(k.c,main[0].c,main[1].c)>40);
-  const base=main[0],p1=main[1]&&main[1].share>=0.02?main[1]:null,p2=main[2]&&main[2].share>=0.05?main[2]:null;
-
-  /* 3. pattern from a sampled map of the body (true = pattern colour) */
-  const res={};
-  const notes=[];
-  const GX=40,GY=40,bx0=0.22,bx1=0.78,by0=0.3,by1=0.93;
-  const grid=[];
-  for(let j=0;j<GY;j++){const row=[];for(let i=0;i<GX;i++){
-    const x=Math.round(x0+(bx0+(bx1-bx0)*(i+0.5)/GX)*W),y=Math.round(y0+(by0+(by1-by0)*(j+0.5)/GY)*H);
-    if(!isFg(x,y)||depth[y*w+x]<=1){row.push(null);continue;}
-    row.push(p1?nearest(rgb(x,y),main)!==0:false);}grid.push(row);}
-  const frac=cells=>{const v=cells.filter(c=>c!==null);return v.length?v.filter(Boolean).length/v.length:0;};
-  const cols=[...Array(GX)].map((_,i)=>frac(grid.map(r=>r[i])));
-  const rows=grid.map(r=>frac(r));
-  const purity=a=>a.reduce((s,f)=>s+Math.max(f,1-f),0)/a.length;
-  const diagProfile=sign=>{const bins=new Map();grid.forEach((r,j)=>r.forEach((c,i)=>{if(c===null)return;const k=Math.round((i+sign*j)/2);const b=bins.get(k)||[];b.push(c);bins.set(k,b);}));
-    return [...bins.keys()].sort((a,b)=>a-b).map(k=>bins.get(k)).filter(b=>b.length>=6).map(frac);};
-  const dA=diagProfile(1),dB=diagProfile(-1);
-  const pC=purity(cols),pR=purity(rows),pA=purity(dA),pB=purity(dB);
-  const runs=prof=>{const r=[];let start=-1;prof.forEach((f,i)=>{const on=f>0.5;if(on&&start<0)start=i;if(!on&&start>=0){r.push([start,i-1]);start=-1;}});if(start>=0)r.push([start,prof.length-1]);return r;};
-  const share=frac(grid.flat());
-  const periodOf=rr=>rr.length>1?(rr[rr.length-1][0]-rr[0][0])/(rr.length-1):null;
-  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const q=(fx0,fx1,fy0,fy1)=>frac(grid.slice(Math.floor(fy0*GY),Math.floor(fy1*GY)).flatMap(r=>r.slice(Math.floor(fx0*GX),Math.floor(fx1*GX))));
-
-  const thin=share<0.1;
-  // how much the inner edge of a one-sided pattern drifts from row to row (curved swoosh vs straight stripe)
-  function curveSpread(){const right=cols.slice(GX/2).reduce((t,v)=>t+v,0)>cols.slice(0,GX/2).reduce((t,v)=>t+v,0);
-    const xs=[];grid.forEach(r=>{let e=-1;if(right){for(let i=GX/2;i<GX;i++)if(r[i]){e=i;break;}}else{for(let i=GX/2-1;i>=0;i--)if(r[i]){e=i;break;}}if(e>=0)xs.push(e);});
-    if(xs.length<GY*0.4)return 0;const m=xs.reduce((t,v)=>t+v,0)/xs.length;return Math.sqrt(xs.reduce((t,v)=>t+(v-m)*(v-m),0)/xs.length);}
-  const rowRuns=runs(rows),colRuns=runs(cols);
-  if(!p1||share<0.015){res.pattern="plain";}
-  else if(thin&&rowRuns.length>=3){const per=periodOf(rowRuns)/GY*0.63*92;res.pattern="pinhoops";res.count=clamp(Math.round(88/per),2,12);}
-  else if(share<0.3&&colRuns.length>=1&&colRuns.length<=5&&colRuns[colRuns.length-1][1]-colRuns[0][0]<GX*0.35&&Math.abs((colRuns[0][0]+colRuns[colRuns.length-1][1])/2-GX/2)>GX*0.15&&curveSpread()>2.2){
-    res.pattern="swoosh";res.flip=(colRuns[0][0]<GX/2);res.width=clamp(Math.round(share*350),15,90);res.count=3;}
-  else if(share<0.3&&colRuns.length>=1&&colRuns.length<=5&&colRuns[colRuns.length-1][1]-colRuns[0][0]<GX*0.35){
-    const a=colRuns[0][0],b=colRuns[colRuns.length-1][1];res.pattern="offset";res.count=Math.max(1,colRuns.length);
-    const unit=0.56*92/GX;res.width=clamp(Math.round((((b-a+1)*unit/res.count)-0.8)/4*100),10,90);
-    res.pos=clamp(Math.round(((a+b+1)/2/GX-0.5)*0.56*92*2)/2,-24,24);
-    if(Math.abs(res.pos)<3){res.pattern="centre";res.width=clamp(Math.round(((b-a+1)*unit-4)/30*100),10,90);delete res.pos;}}
-  else if(thin){res.pattern="plain";}
-  else{
-    const tl=q(0,.5,0,.5),tr=q(.5,1,0,.5),bl=q(0,.5,.5,1),br=q(.5,1,.5,1);
-    const best=Math.max(pC,pR,pA,pB);
-    if(((tr>.75&&bl>.75&&tl<.25&&br<.25)||(tl>.75&&br>.75&&tr<.25&&bl<.25))){res.pattern="quarters";if(tl>tr)notes.push("swap the colours if the quarters look mirrored");}
-    else if(best===pC&&pC>0.8){
-      const rr=runs(cols),per=periodOf(rr);
-      if(rr.length===1){const [a,b]=rr[0];
-        if(b>=GX-2&&a>GX*0.3)res.pattern="halves";
-        else if(a<=1&&b<=GX-2&&b<GX*0.7){res.pattern="halves";[res.swap]=[true];}
-        else if(Math.abs((a+b)/2-GX/2)>GX*0.12&&(b-a+1)<GX*0.3){res.pattern="offset";res.count=1;res.width=clamp(Math.round((((b-a+1)/GX*0.56*92)-0.8)/4*100),10,90);res.pos=clamp(Math.round(((a+b+1)/2/GX-0.5)*0.56*92*2)/2,-24,24);}
-        else {res.pattern="centre";res.width=clamp(Math.round(((b-a+1)/GX*0.56*92-4)/30*100),10,90);}
-      }else if(rr.length===2&&rr[0][0]<=1&&rr[1][1]>=GX-2){res.pattern="sides";res.width=clamp(Math.round((((rr[0][1]+1)/GX*0.56*92)-3)/14*100),10,90);}
-      else{
-        const perUnits=per/GX*0.56*92; // px period in jersey units (shirt is 92 units wide)
-        if(share<0.2&&rr.length>=6){res.pattern="pinstripes";res.count=clamp(Math.round(54/perUnits/2),2,12);}
-        else{res.pattern="stripes";res.count=clamp(Math.round(54/perUnits),2,12);res.width=clamp(Math.round(share*100),15,85);
-          res.center=cols[Math.floor(GX/2)]>0.5||cols[Math.floor(GX/2)-1]>0.5;}
-      }
-    } else if(best===pR&&pR>0.8){
-      const rr=runs(rows),per=periodOf(rr);
-      if(rr.length>=4&&share<0.2){const perUnits=per/GY*0.63*92;res.pattern="pinhoops";res.count=clamp(Math.round(88/perUnits),2,12);}
-      else if(rr.length>=2){const perUnits=per/GY*0.63*92;res.pattern="hoops";res.count=clamp(Math.round(88/perUnits),2,12);res.width=clamp(Math.round(share*100),15,85);}
-      else if(rr.length===1){const [a,b]=rr[0];
-        if(a<=1){res.pattern="yoke";}
-        else if(b>=GY-2){res.pattern="fade";}
-        else{res.pattern="band";res.width=clamp(Math.round(((b-a+1)/GY*0.63*92-4)/22*100),10,90);}}
-      else res.pattern="plain";
-    } else if((best===pA||best===pB)&&best>0.78){
-      const prof=best===pA?dA:dB,rr=runs(prof);
-      // pA: cells with equal i+j share a colour, i.e. "/" lines; pB: "\" lines
-      if(rr.length<=1){res.pattern="sash";res.width=clamp(Math.round((share*100*1.3)),10,90);res.angle=best===pA?60:0;}
-      else{res.pattern="diagonal";res.angle=best===pA?45:-45;const per=periodOf(rr)*Math.SQRT2;res.count=clamp(Math.round(60/(per/GX*0.56*92)),2,12);res.width=clamp(Math.round(share*100),15,85);}
-    } else {
-      // checks: colour flips between neighbouring cells along both axes
-      let flips=0,n=0;for(let j=0;j<GY;j++)for(let i=1;i<GX;i++){const a=grid[j][i-1],b=grid[j][i];if(a===null||b===null)continue;n++;if(a!==b)flips++;}
-      const rate=n?flips/n:0;
-      if(rate>0.06&&share>0.3&&share<0.7){res.pattern="checkers";res.count=clamp(Math.round((rate*(GX-1)+1)*54/(0.56*92)),2,12);}
-      else{res.pattern=pC>=pR?"stripes":"hoops";res.count=5;res.width=50;notes.push("the pattern was hard to read, so check it");}
-    }
-  }
-
-  /* 4. outline */
-  const edge=[];for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(isFg(x,y)&&depth[y*w+x]===1&&d[idx(x,y)+3]>200)edge.push(rgb(x,y));
-  const ecl=cluster(edge,50);
-  let outline=ecl[0]?ecl[0].c:base.c;
-  if(dist(outline,base.c)<60||(p1&&dist(outline,p1.c)<60))outline=base.c.map(v=>v*0.55);
-
-  /* 5. sleeves and cuffs: look only at the outer part of each sleeve */
-  const sl=[...pts(0,0.12,0.1,0.42,1),...pts(0.88,1,0.1,0.42,1)].map(([x,y])=>rgb(x,y));
-  let patternSleeves=false,sleeve=base.c,cuff=false,cuffColor=outline;
-  if(sl.length){
-    const scl=cluster(sl,62).filter(k=>k.share>=0.08);
-    const near=(c,k)=>dist(c,k.c)<62;
-    const isMain=k=>main.findIndex(m=>dist(m.c,k.c)<62);
-    if(p1&&scl.some(k=>isMain(k)===0&&k.share>0.22)&&scl.some(k=>isMain(k)===1&&k.share>0.22)&&res.pattern!=="halves"&&res.pattern!=="quarters"){
-      patternSleeves=true;
-      const extra=scl.find(k=>isMain(k)<0&&k.share>0.1);if(extra){cuff=true;cuffColor=extra.c;}
-    }else if(scl[0]){
-      sleeve=scl[0].c;
-      const second=scl.find((k,i)=>i>0&&k.share>0.12&&dist(k.c,sleeve)>60);
-      if(second){cuff=true;cuffColor=second.c;}
-    }
-  }
-
-  /* 6. collar */
-  const top=pts(0.34,0.66,0,0.16,0).map(([x,y])=>rgb(x,y));
-  let collarColor=outline;
-  const tcol=cluster(top,55).filter(k=>dist(k.c,base.c)>60&&!(p1&&dist(k.c,p1.c)<60)&&k.share>0.06);
-  if(tcol[0])collarColor=tcol[0].c;
-  const bigCollar=tcol[0]&&tcol[0].share>0.3;
-  // the front of the collar is the lowest collar-coloured pixel down the middle of the chest
-  let neckY=-1;const cx=Math.round(x0+W/2);
-  for(let y=y0;y<y0+H*0.32;y++){for(let dx=-1;dx<=1;dx++){const x=cx+dx;if(isFg(x,y)&&dist(rgb(x,y),collarColor)<70)neckY=y;}}
-  const neckDepth=neckY<0?0.1:(neckY-y0)/H;
-  let collar=bigCollar?"polo":neckDepth<0.07?"crew":"round";
-  if(neckDepth>0.15){
-    // a V-neck: collar pixels drift away from the centre line faster than a round neck
-    const spread=fy=>{const y=Math.round(y0+fy*H);let lo=null,hi=null;for(let x=x0;x<=x1;x++)if(isFg(x,y)&&dist(rgb(x,y),collarColor)<70){if(lo===null)lo=x;hi=x;}return lo===null?0:(hi-lo)/W;};
-    if(spread(neckDepth*0.85)<0.12&&spread(neckDepth*0.4)>0.18)collar="v";
-  }
-
-  /* 7. shading: ground colour near the sides versus the middle */
-  const lumOf=list=>{const v=list.map(([x,y])=>rgb(x,y)).filter(c=>dist(c,base.c)<70);return v.length?v.reduce((s,c)=>s+lum(c),0)/v.length:null;};
-  const mid=lumOf(pts(0.4,0.6,0.45,0.85)),sides=lumOf([...pts(0.2,0.3,0.45,0.85),...pts(0.7,0.8,0.45,0.85)]);
-  const shading=mid!==null&&sides!==null?clamp(Math.round((mid-sides)*2.2+25),0,80):30;
-
-  let baseC=base.c,p1C=p1?p1.c:base.c;
-  if(res.swap){[baseC,p1C]=[p1C,baseC];}
-  const out={
-    base:hex(baseC),p1:hex(p1C),outline:hex(outline),outlineW:0.5,shading,
-    pattern:res.pattern,twoTone:!!(p2&&["stripes","hoops","diagonal","offset"].includes(res.pattern)),
-    patternSleeves,sleeve:hex(sleeve),cuff,cuffColor:hex(cuffColor),collar,collarColor:hex(collarColor)
+/* ---------- fully random kit ---------- */
+// Every setting is drawn at random within sensible limits, so the result still reads as a shirt.
+// rand: a function returning numbers in [0,1); pass a seeded one (see seededRandom) for repeatable kits.
+function seededRandom(seed){let a=(Math.abs(Math.floor(seed))||1)>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function randomKit(rand=Math.random){
+  const r=rand, pick=a=>a[Math.floor(r()*a.length)], chance=p=>r()<p;
+  const int=(a,b)=>a+Math.floor(r()*(b-a+1)), step=(a,b,s)=>Math.round((a+r()*(b-a))/s)*s;
+  const hex=(h,s,l)=>{s/=100;l/=100;const f=n=>{const k=(n+h/30)%12,c=l-s*Math.min(l,1-l)*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(c*255).toString(16).padStart(2,"0");};return "#"+f(0)+f(8)+f(4);};
+  const lum=c=>{const v=[1,3,5].map(i=>parseInt(c.substr(i,2),16)/255).map(x=>x<=.03928?x/12.92:((x+.055)/1.055)**2.4);return .2126*v[0]+.7152*v[1]+.0722*v[2];};
+  const contrast=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
+  const shade=(c,f)=>"#"+[1,3,5].map(i=>Math.round(Math.max(0,Math.min(255,parseInt(c.substr(i,2),16)*f))).toString(16).padStart(2,"0")).join("");
+  const colour=()=>chance(.55)?pick(PAL):hex(int(0,359),int(35,90),int(18,82));
+  const against=(bg,min)=>{let c,n=0;do{c=colour();}while(contrast(c,bg)<min&&++n<40);return c;};
+  const legible=bg=>contrast("#ffffff",bg)>=contrast("#111418",bg)?"#ffffff":"#111418";
+  const base=colour(), p1=against(base,1.8), p2=against(p1,1.6), p3=against(base,1.6), trim=pick([p1,p2,legible(base)]);
+  const k={
+    base, outline:lum(base)>.5?shade(base,.35):shade(base,.45), outlineW:step(.3,1.1,.1), shading:int(10,55),
+    shirtLen:int(92,110), shirtWid:int(90,110), sleeveLen:int(75,125), sleeveWid:int(78,112), cuffWid:step(50,150,5),
+    pattern:chance(.12)?"plain":pick(PATTERNS.slice(1))[0], p1, p2, p3,
+    twoTone:chance(.4), count:int(2,10), width:int(10,80), angle:chance(.5)?pick([-35,-20,0,20,35]):int(-45,45),
+    center:chance(.5), pos:step(-10,24,.5), vpos:step(-10,24,.5), gap:int(0,14), jagged:chance(.3), flip:chance(.5),
+    patternSleeves:chance(.45), sleeve:pick([base,base,p1,p2]),
+    cuff:chance(.7), cuffColor:pick([p1,p2,trim]), cuffStripe:chance(.3), cuffStripeColor:pick([base,p2,p3]),
+    shStripes:chance(.25), shColor:trim,
+    collar:pick(["round","crew","v","polo"]), collarColor:pick([p1,p2,trim]), collarStripe:chance(.35), collarStripeColor:pick([base,p2,p3]),
+    mottle:chance(.35)?pick([...MOTTLE_IDS].filter(m=>m!=="off")):"off", mottleColor:lum(base)>.4?shade(base,.82):shade(base,1.35),
+    mottleStrength:int(25,75), mottleScale:step(60,200,5), mottleSleeves:chance(.5), mottleSeed:int(1,99999),
+    makerLogo:chance(.8)?pick(Object.keys(MAKERS)):"none", makerColor:legible(base), makerPos:"L", makerSize:step(7,10,.5),
+    stars:chance(.2)?int(1,5):0, starColor:pick(["#c9a24a","#f2c230",legible(base)]), starPos:"crest", starLayout:pick(["row","row","arc"]),
+    starSize:step(2.4,3.4,.2), starGap:step(.3,.8,.1),
+    number:chance(.25)?String(int(1,99)):"", numColor:legible(base), numStroke:pick([p1,p2]), numEdge:chance(.3),
+    logos:NOLOGO
   };
-  if(p2)out.p2=hex(p2.c);
-  ["count","width","angle","center","pos","flip"].forEach(k=>{if(res[k]!==undefined)out[k]=res[k];});
-  return {kit:out,notes,palette:main.map(k=>({hex:hex(k.c),share:Math.round(k.share*100)}))};
+  k.numPos=k.makerLogo!=="none"?pick(["B","C"]):pick(["L","C","B"]);
+  k.numSize=k.numPos==="B"?int(24,32):int(11,15);
+  return sanitizeKit(k);
 }
 
-/* image import */
-let beforeImport=null;
-const PAT_NAME=Object.fromEntries(PATTERNS.map(p=>[p[0],p[1].toLowerCase()]));
-function readImage(file){
-  if(!file||!/^image\//.test(file.type)){toast("Choose a PNG, JPG or WebP image.");return;}
-  if(file.size>MAX_UPLOAD){toast("That image is over 5 MB. Try a smaller file.");return;}
-  const url=URL.createObjectURL(file);const im=new Image();
-  im.onload=()=>{
-    const sc=Math.min(1,300/Math.max(im.naturalWidth,im.naturalHeight));
-    const cw=Math.max(1,Math.round(im.naturalWidth*sc)),ch=Math.max(1,Math.round(im.naturalHeight*sc));
-    const cv=document.createElement("canvas");cv.width=cw;cv.height=ch;const cx=cv.getContext("2d");
-    cx.imageSmoothingEnabled=sc<1;cx.drawImage(im,0,0,cw,ch);
-    let r=null;try{r=analyzeKit(cx.getImageData(0,0,cw,ch));}catch(e){r=null;}
-    const pic=$("#importImg");pic.src=url;pic.hidden=false;$("#importHint").hidden=true;
-    if(!r){$("#importText").textContent="Couldn't find a shirt in that image. Try an icon on a plain or transparent background.";$("#importSwatches").innerHTML="";return;}
-    beforeImport=clone(S);
-    const keep={makerLogo:S.makerLogo,makerColor:S.makerColor,makerPos:S.makerPos,makerSize:S.makerSize,makerDx:S.makerDx,makerDy:S.makerDy,stars:S.stars,starColor:S.starColor,starPos:S.starPos,starLayout:S.starLayout,starSize:S.starSize,starGap:S.starGap,starDy:S.starDy,shirtLen:S.shirtLen,shirtWid:S.shirtWid,sleeveLen:S.sleeveLen,sleeveWid:S.sleeveWid,cuffWid:S.cuffWid,logos:S.logos,number:S.number,numColor:S.numColor,numStroke:S.numStroke,numEdge:S.numEdge,numPos:S.numPos,numSize:S.numSize};
-    S=sanitizeKit(Object.assign(clone(DEFAULT),r.kit,clone(keep)));
-    $("#importUndo").hidden=false;
-    const k=r.kit,bits=[`${PAT_NAME[k.pattern]||k.pattern}${k.count&&["stripes","hoops","diagonal","pinstripes","checkers"].includes(k.pattern)?` (${k.count})`:""}`,
-      k.patternSleeves?"pattern on sleeves":"plain sleeves",k.cuff?"contrast cuffs":"no cuffs",`${k.collar==="v"?"V-neck":k.collar} collar`];
-    $("#importText").textContent=`Read ${file.name}: ${bits.join(", ")}.`+(r.notes.length?` Tip: ${r.notes.join("; ")}.`:" Fine-tune anything below.");
-    $("#importSwatches").innerHTML=r.palette.map(c=>`<span class="sw"><i style="background:${c.hex}"></i>${c.hex} · ${c.share}%</span>`).join("");
-    update();toast("Kit read from image");
-  };
-  im.onerror=()=>{toast("That image couldn't be opened.");};
-  im.src=url;
-}
-$("#importFile").addEventListener("change",e=>{readImage(e.target.files[0]);e.target.value="";});
-$("#importUndo").addEventListener("click",()=>{if(beforeImport){S=beforeImport;beforeImport=null;$("#importUndo").hidden=true;update();toast("Back to your previous kit");}});
-{const dz=$("#importDrop");
- dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over");});
- dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
- dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("over");readImage(e.dataTransfer.files[0]);});}
-
-$("#mottleShuffle").addEventListener("click",()=>{S.mottleSeed=1+Math.floor(Math.random()*99998);update();});
-$("#resetShape").addEventListener("click",()=>{["shirtLen","shirtWid","sleeveLen","sleeveWid","cuffWid"].forEach(k=>S[k]=100);update();});
-buildPatterns(); buildSlots(); bindAll();
-strip($("#presets"),PRESETS,loadKit);
-drawSaved(); update();
+return {SAMPLE_CREST,PATTERNS,TWO_TONE_LABEL,FLIPPABLE,GAP_LABEL,DEFAULT,clone,NOLOGO,NECK,SPOTS,SHAPE_BASE,geom,esc,r2,HEX,safeColor,num,clamp,MAX_UPLOAD,COLOR_KEYS,PATTERN_IDS,COLLAR_IDS,SPOT_IDS,STAR_POS,STAR_LAYOUT,MOTTLE_IDS,patternSVG,MAKERS,MAKER_IDS,mottleTile,LOGO_CSS_PROPS,inlineClassStyles,colorCache,normColor,PAINT_PROPS,SHAPES,badgeColors,expandUses,prepLogo,badgeInner,logoCache,logoData,render,sanitizeKit,CFG_TAG,b64enc,b64dec,PAL,toFile,seededRandom,randomKit};
 })();
-</script>
-</body></html>
