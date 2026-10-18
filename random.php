@@ -14,7 +14,7 @@
      stars=5      5 stars above the number / badge spot  1-10; stars=random for 1 to 5
 
    Back of the shirt:
-     backside=true            high crew collar, no maker logo or stars; the number goes big in the middle
+     backside=true            high crew collar (fronts never get it), no maker logo or stars; the number goes big in the middle
      text=SILVA               up to 16 characters across the top, between the sleeves (back only);
                               short names come out a little bigger and wider spaced, long ones shrink to fit
      e.g. random.php?backside=true&number=10&text=SILVA
@@ -515,6 +515,9 @@ final class KitRoom {
       $k['numPos'] = 'R';
       if ($k['numSize'] > 15) $k['numSize'] = 14;
       $k['starPos'] = 'crest';
+      // the high crew collar is for the back only; swap it for one of the others, chosen from the shirt's own
+      // random values (no new draw), so the same seed gives the same front whatever options are set
+      if ($k['collar'] === 'crew') $k['collar'] = ['round', 'v', 'polo'][$k['mottleSeed'] % 3];
     } else {                                        // back: high crew collar, no maker or stars, big number in the middle, text on top
       $k['makerLogo'] = 'none'; $k['stars'] = 0; $k['collar'] = 'crew';
       $k['numPos'] = 'B'; $k['numSize'] = 32;
