@@ -8,6 +8,12 @@
      random.php?embed=0      leave out the Kit Room settings (by default every file carries them, so Kit Room's Open SVG can load it)
    Saving the shirt from the browser gives kit-<seed>.svg; the seed is also in the X-Kit-Seed header.
 
+   Your own shirts: POST a shirt exported from Kit Room (with "Reopen later" ticked) to random.php, as the raw
+   request body, as a file upload, or as a form field named svg. You get the plain shirt back: no maker logo,
+   badges, number, stars or text, default shape, own collar. Instead of a seed, the X-Kit-Seed header then holds
+   a code (it starts with k). Use it like a seed: random.php?seed=<code>&backside=true&number=10&text=SILVA ...
+   Codes need no storage on the server: the shirt's settings are packed into the code itself.
+
    Front of the shirt (the default). Maker logo, number and stars are left off unless you ask for them:
      maker=1      a random maker logo                     maker=adidas, maker=nike ... for a particular one
      number=54    54 where the club badge would sit       1 to 3 digits; number=random for a random 1-99
@@ -517,13 +523,60 @@ final class KitRoom {
       $k['starPos'] = 'crest';
       // the high crew collar is for the back only; swap it for one of the others, chosen from the shirt's own
       // random values (no new draw), so the same seed gives the same front whatever options are set
-      if ($k['collar'] === 'crew') $k['collar'] = ['round', 'v', 'polo'][$k['mottleSeed'] % 3];
+      if ($k['collar'] === 'crew' && empty($o['keepCollar'])) $k['collar'] = ['round', 'v', 'polo'][$k['mottleSeed'] % 3];
     } else {                                        // back: high crew collar, no maker or stars, big number in the middle, text on top
       $k['makerLogo'] = 'none'; $k['stars'] = 0; $k['collar'] = 'crew';
       $k['numPos'] = 'B'; $k['numSize'] = 32;
       $k['text'] = $o['text']; $k['textColor'] = $k['numColor']; $k['textSize'] = 7; $k['textDy'] = 0;
     }
     return $k;
+  }
+
+  /* ---------- shirt codes: an uploaded Kit Room shirt, packed into text that works like a seed ---------- */
+  // Settings that are not part of the plain shirt: extras and shape. They are reset by strip() and left out of codes.
+  const EXTRA_KEYS = ['makerLogo', 'makerPos', 'makerSize', 'makerDx', 'makerDy', 'stars', 'starPos', 'starSize', 'starGap', 'starDy',
+    'number', 'numPos', 'numSize', 'text', 'textSize', 'textDy', 'shirtLen', 'shirtWid', 'sleeveLen', 'sleeveWid', 'cuffWid', 'logos'];
+  // Reads the Kit Room settings embedded in an exported SVG (null if there are none).
+  static function kitFromSvg($svg) {
+    if (!is_string($svg) || !preg_match('/<metadata[^>]*id="kitroom-config"[^>]*>\s*([A-Za-z0-9+\/=\s]+?)\s*<\/metadata>/', $svg, $m)) return null;
+    $json = base64_decode(preg_replace('/\s+/', '', $m[1]), true);
+    $raw = $json === false ? null : json_decode($json, true);
+    return is_array($raw) ? self::sanitizeKit($raw) : null;
+  }
+  // The plain shirt: no maker logo, badges, number, stars or text; default shape and default sizes for extras added later.
+  // An uploaded shirt that never had a number keeps Kit Room's default number colour, which may not show up:
+  // give it one that does, like random shirts get. The colour is then part of the shirt's code.
+  static function fromUpload($k) {
+    if (trim((string)$k['number']) === '') $k['numColor'] = self::legible($k['base']);
+    return self::strip($k);
+  }
+  static function strip($k) {
+    $d = self::$D['DEFAULT'];
+    foreach (self::EXTRA_KEYS as $key) $k[$key] = $d[$key];
+    $k['makerLogo'] = 'none'; $k['logos'] = self::sanitizeKit(['logos' => self::$D['NOLOGO']])['logos'];
+    $k['makerSize'] = 8.8; $k['starSize'] = 2.8; $k['starGap'] = 0.5;   // the sizes random shirts use
+    return $k;
+  }
+  static function lum($c) { $v = array_map(function ($i) use ($c) { $x = hexdec(substr($c, $i, 2)) / 255; return $x <= .03928 ? $x / 12.92 : (($x + .055) / 1.055) ** 2.4; }, [1, 3, 5]);
+    return .2126 * $v[0] + .7152 * $v[1] + .0722 * $v[2]; }
+  static function legible($bg) { $c = function ($a, $b) { $x = self::lum($a); $y = self::lum($b); return (max($x, $y) + .05) / (min($x, $y) + .05); };
+    return $c('#ffffff', $bg) >= $c('#111418', $bg) ? '#ffffff' : '#111418'; }
+  static function b64url($b) { return rtrim(strtr(base64_encode($b), '+/', '-_'), '='); }
+  // Code = "k1" + deflated JSON of the settings that differ from Kit Room's defaults ("k0" = not deflated, for hosts without zlib).
+  static function encodeCode($k) {
+    $d = self::$D['DEFAULT']; $diff = [];
+    foreach ($d as $key => $v) if (!in_array($key, self::EXTRA_KEYS, true) && isset($k[$key]) && self::jsonValue($k[$key]) !== self::jsonValue($v)) $diff[$key] = $k[$key];
+    $json = json_encode(self::jsonValue($diff), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    return function_exists('gzdeflate') ? 'k1' . self::b64url(gzdeflate($json, 9)) : 'k0' . self::b64url($json);
+  }
+  static function isCode($c) { return is_string($c) && preg_match('/^k[01][A-Za-z0-9_-]{1,4000}$/', $c); }
+  static function decodeCode($c) {
+    if (!self::isCode($c)) return null;
+    $bin = base64_decode(strtr(substr($c, 2), '-_', '+/'), true);
+    if ($bin === false) return null;
+    if ($c[1] === '1') { if (!function_exists('gzinflate')) return null; $bin = @gzinflate($bin, 200000); if ($bin === false) return null; }
+    $raw = json_decode($bin, true);
+    return is_array($raw) ? self::strip(self::sanitizeKit($raw)) : null;
   }
 
   /* ---------- the file ---------- */
@@ -543,11 +596,36 @@ KitRoom::$D = json_decode(KR_DATA, true);
 
 /* ---------- request ---------- */
 if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
+  header('Access-Control-Allow-Origin: *');                 // lets your game use it from another site
+  header('Access-Control-Expose-Headers: X-Kit-Seed');      // ...and read the seed / code header there
+  $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+  if ($method === 'OPTIONS') {                              // browsers ask first before POSTing an SVG from another site
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); header('Access-Control-Allow-Headers: Content-Type'); header('Access-Control-Max-Age: 86400');
+    http_response_code(204); exit;
+  }
+  $fail = function ($status, $msg) { http_response_code($status); header('Content-Type: text/plain; charset=utf-8'); header('Cache-Control: no-store'); echo $msg, "\n"; exit; };
   $size = 128;
   if (isset($_GET['size'])) { $n = is_numeric($_GET['size']) ? (int)round((float)$_GET['size']) : 128; $size = $n === 0 ? 0 : min(1024, max(16, $n)); }
-  $seed = (isset($_GET['seed']) && preg_match('/^\d{1,10}$/', (string)$_GET['seed'])) ? (int)$_GET['seed'] : null;
-  if ($seed === null) $seed = random_int(1, 2147483647);   // every shirt gets a seed, so it can be fetched again with ?seed=
-  $rand = KitRoom::seededRandom($seed);
+
+  // Which shirt: an uploaded SVG (POST), a code (?seed=k...), a seed (?seed=123), or a new random one.
+  $base = null; $id = null;
+  if ($method === 'POST') {
+    $svgIn = null;
+    if (!empty($_FILES)) { foreach ($_FILES as $f) { if (is_array($f) && isset($f['tmp_name']) && is_string($f['tmp_name']) && is_uploaded_file($f['tmp_name']) && $f['size'] <= 8 * 1024 * 1024) { $svgIn = file_get_contents($f['tmp_name']); break; } } }
+    if ($svgIn === null && isset($_POST['svg']) && is_string($_POST['svg'])) $svgIn = $_POST['svg'];
+    if ($svgIn === null) { $svgIn = file_get_contents('php://input', false, null, 0, 8 * 1024 * 1024 + 1); if (strlen((string)$svgIn) > 8 * 1024 * 1024) $fail(413, 'That file is too big (8 MB at most).'); }
+    $up = KitRoom::kitFromSvg((string)$svgIn);
+    if ($up === null) $fail(400, 'No Kit Room settings found in that SVG. Export it from Kit Room with "Reopen later" ticked.');
+    $base = KitRoom::fromUpload($up); $id = KitRoom::encodeCode($base);
+  } elseif (isset($_GET['seed']) && KitRoom::isCode((string)$_GET['seed'])) {
+    $id = (string)$_GET['seed']; $base = KitRoom::decodeCode($id);
+    if ($base === null) $fail(400, 'That shirt code could not be read.');
+  } else {
+    $id = (isset($_GET['seed']) && preg_match('/^\d{1,10}$/', (string)$_GET['seed'])) ? (int)$_GET['seed'] : random_int(1, 2147483647);
+  }
+  // codes get their own fixed random stream (for maker=1, number=random ...), so a code always gives the same result too
+  $rand = KitRoom::seededRandom($base !== null ? crc32((string)$id) : $id);
+
   $arg = function ($k) { return isset($_GET[$k]) ? strtolower(trim((string)$_GET[$k])) : null; };
   $maker = false;
   if (($m = $arg('maker')) !== null) $maker = isset(KitRoom::$D['MAKERS'][$m]) ? $m : in_array($m, ['1', 'true', 'yes', 'on', ''], true);
@@ -561,12 +639,13 @@ if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
   $back = in_array($arg('backside'), ['1', 'true', 'yes', 'on', ''], true);
   $text = isset($_GET['text']) && is_string($_GET['text']) ? preg_replace('/[\x00-\x1F\x7F]+/u', '', trim($_GET['text'])) : '';
   $text = $back && $text !== null ? KitRoom::sub(trim($text), 0, 16) : '';
-  $kit = KitRoom::applyOptions(KitRoom::randomKit($rand), $rand, ['maker' => $maker, 'number' => $number, 'stars' => $stars, 'shape' => $shape, 'back' => $back, 'text' => $text]);
+  $opts = ['maker' => $maker, 'number' => $number, 'stars' => $stars, 'shape' => $shape, 'back' => $back, 'text' => $text, 'keepCollar' => $base !== null];
+  $kit = KitRoom::applyOptions($base !== null ? $base : KitRoom::randomKit($rand), $rand, $opts);
   $svg = KitRoom::toFile($kit, $size, !(isset($_GET['embed']) && $_GET['embed'] === '0'));
+  $fname = is_int($id) ? 'kit-' . $id : 'kit-' . sprintf('%08x', crc32($id));
   header('Content-Type: image/svg+xml; charset=utf-8');
-  header('Content-Disposition: inline; filename="kit-' . $seed . '.svg"');   // "Save as" gives kit-12345.svg, which Kit Room's Open SVG accepts
-  header('X-Kit-Seed: ' . $seed);
+  header('Content-Disposition: inline; filename="' . $fname . ($back ? '-back' : '') . '.svg"');   // a .svg name, which Kit Room's Open SVG accepts
+  header('X-Kit-Seed: ' . $id);                  // the seed, or for an uploaded shirt its code: send it back as ?seed= to get the same shirt
   header('Cache-Control: no-store, max-age=0');   // a new shirt on every reload
-  header('Access-Control-Allow-Origin: *');       // lets your game fetch it from another site
   echo $svg;
 }
