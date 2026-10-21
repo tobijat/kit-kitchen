@@ -19,6 +19,10 @@
      number=54    54 where the club badge would sit       1 to 3 digits; number=random for a random 1-99
      stars=5      5 stars above the number / badge spot  1-10; stars=random for 1 to 5
 
+   Colours (hex: ff0000, f00, or #ff0000 written as %23ff0000; otherwise picked to suit the shirt):
+     scolor=f2c230   stars          mcolor=ffffff   maker logo
+     ncolor=111418   number         tcolor=ffffff   text on the back (follows ncolor unless set)
+
    Back of the shirt:
      backside=true            high crew collar (fronts never get it), no maker logo or stars; the number goes big in the middle
      text=SILVA               up to 16 characters across the top, between the sleeves (back only);
@@ -502,7 +506,7 @@ final class KitRoom {
 
   /* ---------- request options: maker logo, number, stars, shape ---------- */
   // $o: ['maker' => false|true|'adidas'..., 'number' => ''|'54'|'random', 'stars' => 0..10|'random', 'shape' => [key => percent],
-  //      'back' => bool, 'text' => string up to 16 characters (back only)].
+  //      'back' => bool, 'text' => string up to 16 characters (back only), 'colors' => ['s'|'m'|'n'|'t' => '#rrggbb']].
   // Any extra random draws come after randomKit, so options never change the rest of the shirt for a given seed.
   const SHAPE_KEYS = ['shirtLen' => [75, 130], 'shirtWid' => [75, 130], 'sleeveLen' => [50, 140], 'sleeveWid' => [55, 130], 'cuffWid' => [50, 150]];
   static function applyOptions($k, $r, $o) {
@@ -516,7 +520,7 @@ final class KitRoom {
     else $k['number'] = $o['number'];
     if ($o['stars'] === 'random') { if (!$k['stars']) $k['stars'] = 1 + (int)floor($r() * 5); }
     else $k['stars'] = (int)$o['stars'];
-    $k['makerSize'] = self::round($k['makerSize'] * 11) / 10;   // maker logos 10% bigger than randomKit draws them (7.7-11)
+    $k['makerSize'] = self::round($k['makerSize'] * 18.7) / 10;   // maker logos 1.87x what randomKit draws (13.1-18.7)
     if (empty($o['back'])) {                        // front: the number sits where the club badge would, stars above it
       $k['numPos'] = 'R';
       if ($k['numSize'] > 15) $k['numSize'] = 14;
@@ -527,8 +531,14 @@ final class KitRoom {
     } else {                                        // back: high crew collar, no maker or stars, big number in the middle, text on top
       $k['makerLogo'] = 'none'; $k['stars'] = 0; $k['collar'] = 'crew';
       $k['numPos'] = 'B'; $k['numSize'] = 32;
-      $k['text'] = $o['text']; $k['textColor'] = $k['numColor']; $k['textSize'] = 7; $k['textDy'] = 0;
+      $k['text'] = $o['text']; $k['textSize'] = 7; $k['textDy'] = 0;
     }
+    // colours asked for: scolor (stars), mcolor (maker logo), ncolor (number), tcolor (text; follows the number otherwise)
+    $col = isset($o['colors']) ? $o['colors'] : [];
+    if (isset($col['s'])) $k['starColor'] = $col['s'];
+    if (isset($col['m'])) $k['makerColor'] = $col['m'];
+    if (isset($col['n'])) $k['numColor'] = $col['n'];
+    $k['textColor'] = isset($col['t']) ? $col['t'] : $k['numColor'];
     return $k;
   }
 
@@ -554,7 +564,7 @@ final class KitRoom {
     $d = self::$D['DEFAULT'];
     foreach (self::EXTRA_KEYS as $key) $k[$key] = $d[$key];
     $k['makerLogo'] = 'none'; $k['logos'] = self::sanitizeKit(['logos' => self::$D['NOLOGO']])['logos'];
-    $k['makerSize'] = 8.8; $k['starSize'] = 2.8; $k['starGap'] = 0.5;   // the sizes random shirts use
+    $k['makerSize'] = 8.5; $k['starSize'] = 2.8; $k['starGap'] = 0.5;   // the sizes random shirts use (maker: an average draw)
     return $k;
   }
   static function lum($c) { $v = array_map(function ($i) use ($c) { $x = hexdec(substr($c, $i, 2)) / 255; return $x <= .03928 ? $x / 12.92 : (($x + .055) / 1.055) ** 2.4; }, [1, 3, 5]);
@@ -639,7 +649,11 @@ if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
   $back = in_array($arg('backside'), ['1', 'true', 'yes', 'on', ''], true);
   $text = isset($_GET['text']) && is_string($_GET['text']) ? preg_replace('/[\x00-\x1F\x7F]+/u', '', trim($_GET['text'])) : '';
   $text = $back && $text !== null ? KitRoom::sub(trim($text), 0, 16) : '';
-  $opts = ['maker' => $maker, 'number' => $number, 'stars' => $stars, 'shape' => $shape, 'back' => $back, 'text' => $text, 'keepCollar' => $base !== null];
+  $colors = [];                                   // scolor, mcolor, ncolor, tcolor: ff0000, f00 or #ff0000 (sent as %23ff0000)
+  foreach (['s' => 'scolor', 'm' => 'mcolor', 'n' => 'ncolor', 't' => 'tcolor'] as $c => $p)
+    if (($v = $arg($p)) !== null && preg_match('/^#?([0-9a-f]{3}|[0-9a-f]{6})$/', $v, $mm))
+      $colors[$c] = '#' . (strlen($mm[1]) === 3 ? $mm[1][0] . $mm[1][0] . $mm[1][1] . $mm[1][1] . $mm[1][2] . $mm[1][2] : $mm[1]);
+  $opts = ['maker' => $maker, 'number' => $number, 'stars' => $stars, 'shape' => $shape, 'back' => $back, 'text' => $text, 'keepCollar' => $base !== null, 'colors' => $colors];
   $kit = KitRoom::applyOptions($base !== null ? $base : KitRoom::randomKit($rand), $rand, $opts);
   $svg = KitRoom::toFile($kit, $size, !(isset($_GET['embed']) && $_GET['embed'] === '0'));
   $fname = is_int($id) ? 'kit-' . $id : 'kit-' . sprintf('%08x', crc32($id));
