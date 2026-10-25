@@ -7,6 +7,7 @@
      random.php?seed=1234    the same seed always gives the same shirt
      random.php?embed=0      leave out the Kit Room settings (by default every file carries them, so Kit Room's Open SVG can load it)
    Saving the shirt from the browser gives kit-<seed>.svg; the seed is also in the X-Kit-Seed header.
+   The X-Kit-Query header repeats the request's query string, e.g. seed=42&backside=true&number=10.
 
    Your own shirts: POST a shirt exported from Kit Room (with "Reopen later" ticked) to random.php, as the raw
    request body, as a file upload, or as a form field named svg. You get the plain shirt back: no maker logo,
@@ -607,7 +608,11 @@ KitRoom::$D = json_decode(KR_DATA, true);
 /* ---------- request ---------- */
 if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
   header('Access-Control-Allow-Origin: *');                 // lets your game use it from another site
-  header('Access-Control-Expose-Headers: X-Kit-Seed');      // ...and read the seed / code header there
+  header('Access-Control-Expose-Headers: X-Kit-Seed, X-Kit-Query');   // ...and read the seed / code and query headers there
+  // the request's query string, sent back as it came (bytes that are not safe in a header are percent-encoded)
+  $qs = isset($_SERVER['QUERY_STRING']) ? (string)$_SERVER['QUERY_STRING'] : '';
+  $qs = preg_replace_callback('/[^\x21-\x7E]/', function ($m) { return sprintf('%%%02X', ord($m[0])); }, substr($qs, 0, 8000));
+  header('X-Kit-Query: ' . $qs);
   $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
   if ($method === 'OPTIONS') {                              // browsers ask first before POSTing an SVG from another site
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); header('Access-Control-Allow-Headers: Content-Type'); header('Access-Control-Max-Age: 86400');
