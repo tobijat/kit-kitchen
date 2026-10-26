@@ -14,6 +14,8 @@
    badges, number, stars or text, default shape, own collar. Instead of a seed, the X-Kit-Seed header then holds
    a code (it starts with k). Use it like a seed: random.php?seed=<code>&backside=true&number=10&text=SILVA ...
    Codes need no storage on the server: the shirt's settings are packed into the code itself.
+   For an upload, X-Kit-Query lists the shirt's extras as options instead (backside, maker, number, stars, text, their
+   colours, and a non-default shape), so random.php?seed=<code>&<X-Kit-Query> gives back the shirt you uploaded.
 
    Front of the shirt (the default). Maker logo, number and stars are left off unless you ask for them:
      maker=1      a random maker logo                     maker=adidas, maker=nike ... for a particular one
@@ -521,7 +523,7 @@ final class KitRoom {
     else $k['number'] = $o['number'];
     if ($o['stars'] === 'random') { if (!$k['stars']) $k['stars'] = 1 + (int)floor($r() * 5); }
     else $k['stars'] = (int)$o['stars'];
-    $k['makerSize'] = self::round($k['makerSize'] * 18.7) / 10;   // maker logos 1.87x what randomKit draws (13.1-18.7)
+    if (empty($o['keepCollar'])) $k['makerSize'] = self::round($k['makerSize'] * 18.7) / 10;   // random shirts: 1.87x what randomKit draws (13.1-18.7); codes keep theirs
     if (empty($o['back'])) {                        // front: the number sits where the club badge would, stars above it
       $k['numPos'] = 'R';
       if ($k['numSize'] > 15) $k['numSize'] = 14;
@@ -545,8 +547,11 @@ final class KitRoom {
 
   /* ---------- shirt codes: an uploaded Kit Room shirt, packed into text that works like a seed ---------- */
   // Settings that are not part of the plain shirt: extras and shape. They are reset by strip() and left out of codes.
-  const EXTRA_KEYS = ['makerLogo', 'makerPos', 'makerSize', 'makerDx', 'makerDy', 'stars', 'starPos', 'starSize', 'starGap', 'starDy',
-    'number', 'numPos', 'numSize', 'text', 'textSize', 'textDy', 'shirtLen', 'shirtWid', 'sleeveLen', 'sleeveWid', 'cuffWid', 'logos'];
+  const EXTRA_KEYS = ['makerLogo', 'makerPos', 'makerDx', 'makerDy', 'stars', 'starPos', 'starDy',
+    'number', 'numPos', 'text', 'textSize', 'textDy', 'shirtLen', 'shirtWid', 'sleeveLen', 'sleeveWid', 'cuffWid', 'logos'];
+  // Sizes of the extras travel in the code, so a shirt rebuilt from its code and options matches the upload exactly.
+  // These are what random shirts use when the upload had no such extra (and what older codes, made without them, get).
+  const SIZE_DEFAULTS = ['makerSize' => 15.9, 'starSize' => 2.8, 'starGap' => 0.5, 'numSize' => 14];
   // Reads the Kit Room settings embedded in an exported SVG (null if there are none).
   static function kitFromSvg($svg) {
     if (!is_string($svg) || !preg_match('/<metadata[^>]*id="kitroom-config"[^>]*>\s*([A-Za-z0-9+\/=\s]+?)\s*<\/metadata>/', $svg, $m)) return null;
@@ -558,15 +563,31 @@ final class KitRoom {
   // An uploaded shirt that never had a number keeps Kit Room's default number colour, which may not show up:
   // give it one that does, like random shirts get. The colour is then part of the shirt's code.
   static function fromUpload($k) {
-    if (trim((string)$k['number']) === '') $k['numColor'] = self::legible($k['base']);
+    $sd = self::SIZE_DEFAULTS;
+    if (trim((string)$k['number']) === '') { $k['numColor'] = self::legible($k['base']); $k['numSize'] = $sd['numSize']; }
+    if ($k['makerLogo'] === 'none') $k['makerSize'] = $sd['makerSize'];
+    if (!$k['stars']) { $k['starSize'] = $sd['starSize']; $k['starGap'] = $sd['starGap']; }
+    // a back from random.php has lost its front collar to the high crew one: give the front a collar the way random fronts get one
+    if (self::isBack($k) && $k['collar'] === 'crew') $k['collar'] = ['round', 'v', 'polo'][$k['mottleSeed'] % 3];
     return self::strip($k);
   }
+  static function isBack($k) { return $k['numPos'] === 'B'; }   // random.php puts the number in the middle only on backs
   static function strip($k) {
     $d = self::$D['DEFAULT'];
     foreach (self::EXTRA_KEYS as $key) $k[$key] = $d[$key];
     $k['makerLogo'] = 'none'; $k['logos'] = self::sanitizeKit(['logos' => self::$D['NOLOGO']])['logos'];
-    $k['makerSize'] = 8.5; $k['starSize'] = 2.8; $k['starGap'] = 0.5;   // the sizes random shirts use (maker: an average draw)
     return $k;
+  }
+  // The extras of an uploaded shirt, written as the options that put them back: random.php?seed=<code>&<this>
+  static function extrasQuery($k) {
+    $q = []; $back = self::isBack($k); $hex = function ($c) { return substr($c, 1); };
+    if ($back) $q[] = 'backside=true';
+    if (!$back && $k['makerLogo'] !== 'none') { $q[] = 'maker=' . $k['makerLogo']; $q[] = 'mcolor=' . $hex($k['makerColor']); }
+    if (trim((string)$k['number']) !== '') { $q[] = 'number=' . rawurlencode(trim((string)$k['number'])); $q[] = 'ncolor=' . $hex($k['numColor']); }
+    if (!$back && $k['stars'] > 0) { $q[] = 'stars=' . (int)$k['stars']; $q[] = 'scolor=' . $hex($k['starColor']); }
+    if ($back && trim((string)$k['text']) !== '') { $q[] = 'text=' . rawurlencode(trim((string)$k['text'])); $q[] = 'tcolor=' . $hex($k['textColor']); }
+    foreach (array_keys(self::SHAPE_KEYS) as $key) if (self::num($k[$key], 100) != 100) $q[] = $key . '=' . self::jn($k[$key]);
+    return implode('&', $q);
   }
   static function lum($c) { $v = array_map(function ($i) use ($c) { $x = hexdec(substr($c, $i, 2)) / 255; return $x <= .03928 ? $x / 12.92 : (($x + .055) / 1.055) ** 2.4; }, [1, 3, 5]);
     return .2126 * $v[0] + .7152 * $v[1] + .0722 * $v[2]; }
@@ -576,7 +597,7 @@ final class KitRoom {
   // Code = "k1" + deflated JSON of the settings that differ from Kit Room's defaults ("k0" = not deflated, for hosts without zlib).
   static function encodeCode($k) {
     $d = self::$D['DEFAULT']; $diff = [];
-    foreach ($d as $key => $v) if (!in_array($key, self::EXTRA_KEYS, true) && isset($k[$key]) && self::jsonValue($k[$key]) !== self::jsonValue($v)) $diff[$key] = $k[$key];
+    foreach ($d as $key => $v) if (!in_array($key, self::EXTRA_KEYS, true) && isset($k[$key]) && (isset(self::SIZE_DEFAULTS[$key]) || self::jsonValue($k[$key]) !== self::jsonValue($v))) $diff[$key] = $k[$key];
     $json = json_encode(self::jsonValue($diff), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     return function_exists('gzdeflate') ? 'k1' . self::b64url(gzdeflate($json, 9)) : 'k0' . self::b64url($json);
   }
@@ -587,7 +608,7 @@ final class KitRoom {
     if ($bin === false) return null;
     if ($c[1] === '1') { if (!function_exists('gzinflate')) return null; $bin = @gzinflate($bin, 200000); if ($bin === false) return null; }
     $raw = json_decode($bin, true);
-    return is_array($raw) ? self::strip(self::sanitizeKit($raw)) : null;
+    return is_array($raw) ? self::strip(self::sanitizeKit($raw + self::SIZE_DEFAULTS)) : null;
   }
 
   /* ---------- the file ---------- */
@@ -632,6 +653,7 @@ if (PHP_SAPI !== 'cli' || getenv('KITROOM_SERVE')) {
     $up = KitRoom::kitFromSvg((string)$svgIn);
     if ($up === null) $fail(400, 'No Kit Room settings found in that SVG. Export it from Kit Room with "Reopen later" ticked.');
     $base = KitRoom::fromUpload($up); $id = KitRoom::encodeCode($base);
+    header('X-Kit-Query: ' . KitRoom::extrasQuery($up));   // for an upload: the options that put its extras back
   } elseif (isset($_GET['seed']) && KitRoom::isCode((string)$_GET['seed'])) {
     $id = (string)$_GET['seed']; $base = KitRoom::decodeCode($id);
     if ($base === null) $fail(400, 'That shirt code could not be read.');
